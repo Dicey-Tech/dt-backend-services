@@ -1,4 +1,4 @@
 {
-  "directory": "dt-classroom/static/bower_components",
-  "interactive": false
+    "directory": "classroom/static/bower_components",
+    "interactive": false
 }

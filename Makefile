@@ -68,21 +68,21 @@ coverage: clean
 	$(BROWSER) htmlcov/index.html
 
 isort_check: ## check that isort has been run
-	isort --check-only -rc dt-classroom/
+	isort --check-only -rc classroom/
 
 isort: ## run isort to sort imports in all Python files
-	isort --recursive --atomic dt-classroom/
+	isort --recursive --atomic classroom/
 
 style: ## run Python style checker
-	pylint --rcfile=pylintrc dt-classroom *.py
+	pylint --rcfile=pylintrc classroom *.py
 
 lint: ## run Python code linting
-	pylint --rcfile=pylintrc dt-classroom *.py
+	pylint --rcfile=pylintrc classroom *.py
 
 quality: style isort_check lint ## check code style and import sorting, then lint
 
 pii_check: ## check for PII annotations on all Django models
-	DJANGO_SETTINGS_MODULE=dt-classroom.settings.test \
+	DJANGO_SETTINGS_MODULE=classroom.settings.test \
 	code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
 
 check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names
@@ -113,7 +113,7 @@ extract_translations: ## extract strings to be translated, outputting .mo files
 	python manage.py makemessages -l en -v1 -d djangojs
 
 dummy_translations: ## generate dummy translation (.po) files
-	cd dt-classroom && i18n_tool dummy
+	cd classroom && i18n_tool dummy
 
 compile_translations: # compile translation files, outputting .po files for each supported language
 	python manage.py compilemessages
@@ -130,32 +130,32 @@ start-devstack: ## run a local development copy of the server
 	docker-compose --x-networking up
 
 open-devstack: ## open a shell on the server started by start-devstack
-	docker exec -it dt-classroom /edx/app/dt-classroom/devstack.sh open
+	docker exec -it classroom /edx/app/classroom/devstack.sh open
 
-pkg-devstack: ## build the dt-classroom image from the latest configuration and code
-	docker build -t dt-classroom:latest -f docker/build/dt-classroom/Dockerfile git://github.com/edx/configuration
+pkg-devstack: ## build the classroom image from the latest configuration and code
+	docker build -t classroom:latest -f docker/build/classroom/Dockerfile git://github.com/edx/configuration
 
 detect_changed_source_translations: ## check if translation files are up-to-date
-	cd dt-classroom && i18n_tool changed
+	cd classroom && i18n_tool changed
 
 validate_translations: fake_translations detect_changed_source_translations ## install fake translations and check if translation files are up-to-date
 
 docker_build:
-	docker build . -f Dockerfile -t openedx/dt-classroom
-	docker build . -f Dockerfile --target newrelic -t openedx/dt-classroom:latest-newrelic
+	docker build . -f Dockerfile -t openedx/classroom
+	docker build . -f Dockerfile --target newrelic -t openedx/classroom:latest-newrelic
 
 travis_docker_tag: docker_build
-	docker tag openedx/dt-classroom openedx/dt-classroom:$$TRAVIS_COMMIT
-	docker tag openedx/dt-classroom:latest-newrelic openedx/dt-classroom:$$TRAVIS_COMMIT-newrelic
+	docker tag openedx/classroom openedx/classroom:$$TRAVIS_COMMIT
+	docker tag openedx/classroom:latest-newrelic openedx/classroom:$$TRAVIS_COMMIT-newrelic
 
 travis_docker_auth:
 	echo "$$DOCKER_PASSWORD" | docker login -u "$$DOCKER_USERNAME" --password-stdin
 
 travis_docker_push: travis_docker_tag travis_docker_auth ## push to docker hub
-	docker push 'openedx/dt-classroom:latest'
-	docker push "openedx/dt-classroom:$$TRAVIS_COMMIT"
-	docker push 'openedx/dt-classroom:latest-newrelic'
-	docker push "openedx/dt-classroom:$$TRAVIS_COMMIT-newrelic"
+	docker push 'openedx/classroom:latest'
+	docker push "openedx/classroom:$$TRAVIS_COMMIT"
+	docker push 'openedx/classroom:latest-newrelic'
+	docker push "openedx/classroom:$$TRAVIS_COMMIT-newrelic"
 
 # devstack-themed shortcuts
 dev.up: # Starts all containers

@@ -1,5 +1,5 @@
 SOCIAL_AUTH_EDX_OAUTH2_KEY = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = 'http://127.0.0.1:8000/oauth'
-BACKEND_SERVICE_EDX_OAUTH2_KEY = 'dt-classroom-backend-service-key'
-BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'dt-classroom-backend-service-secret'
+BACKEND_SERVICE_EDX_OAUTH2_KEY = 'classroom-backend-service-key'
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'classroom-backend-service-secret'

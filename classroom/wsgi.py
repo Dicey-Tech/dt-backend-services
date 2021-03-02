@@ -1,5 +1,5 @@
 """
-WSGI config for dt-classroom.
+WSGI config for classroom.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

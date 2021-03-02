@@ -31,11 +31,11 @@ One Time Setup
 .. code-block::
 
   # Clone the repository
-  git clone git@github.com:Dicey-Tech/dt-classroom.git
-  cd dt-classroom
+  git clone git@github.com:Dicey-Tech/classroom.git
+  cd classroom
 
   # Set up a virtualenv using virtualenvwrapper with the same name as the repo and activate it
-  mkvirtualenv -p python3.8 dt-classroom
+  mkvirtualenv -p python3.8 classroom
 
 
 Every time you develop something in this repo
@@ -43,7 +43,7 @@ Every time you develop something in this repo
 .. code-block::
 
   # Activate the virtualenv
-  workon dt-classroom
+  workon classroom
 
   # Grab the latest code
   git checkout master
@@ -113,26 +113,26 @@ For more information about these options, see the `Getting Help`_ page.
 .. _community Slack workspace: https://openedx.slack.com/
 .. _Getting Help: https://openedx.org/getting-help
 
-.. |pypi-badge| image:: https://img.shields.io/pypi/v/dt-classroom.svg
-    :target: https://pypi.python.org/pypi/dt-classroom/
+.. |pypi-badge| image:: https://img.shields.io/pypi/v/classroom.svg
+    :target: https://pypi.python.org/pypi/classroom/
     :alt: PyPI
 
-.. |travis-badge| image:: https://travis-ci.com/edx/dt-classroom.svg?branch=master
-    :target: https://travis-ci.com/edx/dt-classroom
+.. |travis-badge| image:: https://travis-ci.com/edx/classroom.svg?branch=master
+    :target: https://travis-ci.com/edx/classroom
     :alt: Travis
 
-.. |codecov-badge| image:: https://codecov.io/github/edx/dt-classroom/coverage.svg?branch=master
-    :target: https://codecov.io/github/edx/dt-classroom?branch=master
+.. |codecov-badge| image:: https://codecov.io/github/edx/classroom/coverage.svg?branch=master
+    :target: https://codecov.io/github/edx/classroom?branch=master
     :alt: Codecov
 
-.. |doc-badge| image:: https://readthedocs.org/projects/dt-classroom/badge/?version=latest
-    :target: https://dt-classroom.readthedocs.io/en/latest/
+.. |doc-badge| image:: https://readthedocs.org/projects/classroom/badge/?version=latest
+    :target: https://classroom.readthedocs.io/en/latest/
     :alt: Documentation
 
-.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/dt-classroom.svg
-    :target: https://pypi.python.org/pypi/dt-classroom/
+.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/classroom.svg
+    :target: https://pypi.python.org/pypi/classroom/
     :alt: Supported Python versions
 
-.. |license-badge| image:: https://img.shields.io/github/license/edx/dt-classroom.svg
-    :target: https://github.com/edx/dt-classroom/blob/master/LICENSE.txt
+.. |license-badge| image:: https://img.shields.io/github/license/edx/classroom.svg
+    :target: https://github.com/edx/classroom/blob/master/LICENSE.txt
     :alt: License

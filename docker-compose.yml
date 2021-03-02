@@ -9,22 +9,22 @@ services:
     networks:
       - devstack_default
     volumes:
-      - dt-classroom_mysql:/var/lib/mysql
+      - classroom_mysql:/var/lib/mysql
 
   memcache:
     image: memcached:1.4.24
     container_name: classroom.memcache
 
   app:
-    # Uncomment this line to use the official dt-classroom base image
-    image: openedx/dt-classroom
+    # Uncomment this line to use the official classroom base image
+    image: openedx/classroom
 
-    container_name: dt-classroom.app
+    container_name: classroom.app
     volumes:
-      - .:/edx/app/dt-classroom/
-    command: bash -c 'while true; do python /edx/app/dt-classroom/manage.py runserver 0.0.0.0:8180; sleep 2; done'
+      - .:/edx/app/classroom/
+    command: bash -c 'while true; do python /edx/app/classroom/manage.py runserver 0.0.0.0:8180; sleep 2; done'
     environment:
-      DJANGO_SETTINGS_MODULE: dt-classroom.settings.devstack
+      DJANGO_SETTINGS_MODULE: classroom.settings.devstack
     ports:
       - "8180:8180" # TODO: change this to your port
     networks:
@@ -37,4 +37,4 @@ networks:
     external: true
 
 volumes:
-  dt-classroom_mysql:
+  classroom_mysql:
