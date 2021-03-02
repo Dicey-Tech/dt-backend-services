@@ -1,9 +1,11 @@
 [run]
 branch = True
 data_file = .coverage
-source=classroom
+source=dt-classroom
 omit =
-    test_settings
+    dt-classroom/settings*
+    dt-classroom/conf*
+    *wsgi.py
     *migrations*
     *admin.py
     *static*

@@ -2,7 +2,7 @@ Change Log
 ----------
 
 ..
-   All enhancements and patches to classroom will be documented
+   All enhancements and patches to dt-classroom will be documented
    in this file.  It adheres to the structure of https://keepachangelog.com/ ,
    but in reStructuredText instead of Markdown (for ease of incorporation into
    Sphinx documentation and the PyPI description).
@@ -16,7 +16,7 @@ Unreleased
 
 *
 
-[0.1.0] - 2021-02-09
+[0.1.0] - 2021-03-02
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added

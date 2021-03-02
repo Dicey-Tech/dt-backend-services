@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name
 """
-dt-classroom documentation build configuration file.
+classroom documentation build configuration file.
 
 This file is execfile()d with the current directory set to its
 containing dir.
@@ -19,13 +19,15 @@ import sys
 from subprocess import check_call
 
 import edx_theme
-from django import setup as django_setup
-from django.conf import settings
 
 
 def get_version(*file_paths):
     """
-    Extract the version string from the file at the given relative path fragments.
+    Extract the version string from the file.
+
+    Input:
+     - file_paths: relative path fragments to file with
+                   version string
     """
     filename = os.path.join(os.path.dirname(__file__), *file_paths)
     version_file = io.open(filename).read()
@@ -38,11 +40,8 @@ def get_version(*file_paths):
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(REPO_ROOT)
 
-VERSION = get_version('../classroom', '__init__.py')
+VERSION = get_version('../dt-classroom', '__init__.py')
 
-# Configure Django for autodoc usage
-settings.configure()
-django_setup()
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -92,10 +91,10 @@ source_suffix = '.rst'
 top_level_doc = 'index'
 
 # General information about the project.
-project = 'dt-classroom'
+project = 'classroom'
 copyright = edx_theme.COPYRIGHT  # pylint: disable=redefined-builtin
 author = edx_theme.AUTHOR
-project_title = 'Classroom'
+project_title = 'classroom'
 documentation_title = "{project_title}".format(project_title=project_title)
 
 # The version info for the project you're documenting, acts as replacement for
@@ -179,7 +178,7 @@ html_theme_path = [edx_theme.get_html_theme_path()]
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-# html_title = 'dt-classroom v0.1.0'
+# html_title = 'classroom v0.1.0'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #
@@ -190,8 +189,9 @@ html_theme_path = [edx_theme.get_html_theme_path()]
 #
 # html_logo = None
 
-# The name of an image file (relative to this directory) to use as a favicon of
-# the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
+# The name of an image file (relative to this directory) to use as a favicon
+# of the docs.  This file should be a Windows icon file (.ico) being 16x16
+# or 32x32
 # pixels large.
 #
 # html_favicon = None
@@ -473,8 +473,6 @@ epub_exclude_files = ['search.html']
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.8', None),
-    'django': ('https://docs.djangoproject.com/en/2.2/', 'https://docs.djangoproject.com/en/2.2/_objects/'),
-    'model_utils': ('https://django-model-utils.readthedocs.io/en/latest/', None),
 }
 
 
@@ -492,8 +490,8 @@ def on_init(app):  # pylint: disable=unused-argument
         # If we are, assemble the path manually
         bin_path = os.path.abspath(os.path.join(sys.prefix, 'bin'))
         apidoc_path = os.path.join(bin_path, apidoc_path)
-    check_call([apidoc_path, '-o', docs_path, os.path.join(root_path, 'classroom'),
-                os.path.join(root_path, 'classroom/migrations')])
+    check_call([apidoc_path, '-o', docs_path, os.path.join(root_path, 'dt-classroom'),
+                os.path.join(root_path, 'dt-classroom/migrations')])
 
 
 def setup(app):

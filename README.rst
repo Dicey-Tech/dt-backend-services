@@ -1,4 +1,4 @@
-dt-classroom
+classroom
 =============================
 
 |pypi-badge| |travis-badge| |codecov-badge| |doc-badge| |pyversions-badge|

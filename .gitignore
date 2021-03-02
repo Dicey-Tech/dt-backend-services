@@ -1,8 +1,6 @@
-.vscode
-
 *.py[cod]
-__pycache__
-.pytest_cache
+
+*.log
 
 # C extensions
 *.so
@@ -10,54 +8,82 @@ __pycache__
 # Packages
 *.egg
 *.egg-info
-/dist
-/build
-/eggs
-/parts
-/bin
-/var
-/sdist
-/develop-eggs
-/.installed.cfg
-/lib
-/lib64
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
 
 # Installer logs
 pip-log.txt
 
+# Django
+default.db
+
+# Static assets
+media/cache/
+assets/
+
 # Unit test / coverage reports
-.cache/
-.pytest_cache/
 .coverage
-.coverage.*
+htmlcov
 .tox
+nosetests.xml
+unittests.xml
+
+# PII annotation reports
+pii_report
+
+### Internationalization artifacts
+*.mo
+*.po
+*.prob
+!django.po
+!django.mo
+!djangojs.po
+!djangojs.mo
+dt-classroom/conf/locale/fake*/LC_MESSAGES/*.po
+dt-classroom/conf/locale/fake*/LC_MESSAGES/*.mo
+dt-classroom/conf/locale/messages.mo
+
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# QA
 coverage.xml
-htmlcov/
+diff_*.html
+*.report
+report
+venv
+acceptance_tests.*.log
+acceptance_tests.*.png
 
+# Override config files
+override.cfg
+private.py
 
+# JetBrains
+.idea
 
-# The Silver Searcher
-.agignore
+# Emacs
+*~
 
-# OS X artifacts
-*.DS_Store
+# OS X
+.DS_Store
 
-# Logging
-log/
-logs/
-chromedriver.log
-ghostdriver.log
+# Editor Temp Files
+*.swp
 
-# Complexity
-output/*.html
-output/*/index.html
+*.trace
 
-# Sphinx
-docs/_build
-docs/modules.rst
-docs/classroom.rst
-docs/classroom.*.rst
-
-# Private requirements
-requirements/private.in
-requirements/private.txt
+docs/_build/
