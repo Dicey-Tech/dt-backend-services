@@ -19,4 +19,4 @@ class TestJwtLmsApiClient(TestCase):
             client = JwtLmsApiClient("user-goes-here")
             client.connect()
 
-    # test_jwt_lms_api_client_refresh_token()
+    # def test_jwt_lms_api_client_refresh_token(self):
