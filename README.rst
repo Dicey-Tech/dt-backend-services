@@ -31,7 +31,7 @@ One Time Setup
 .. code-block::
 
   # Clone the repository
-  git clone git@github.com:edx/dt-classroom.git
+  git clone git@github.com:Dicey-Tech/dt-classroom.git
   cd dt-classroom
 
   # Set up a virtualenv using virtualenvwrapper with the same name as the repo and activate it

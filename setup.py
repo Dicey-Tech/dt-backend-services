@@ -71,7 +71,7 @@ setup(
     long_description=README + '\n\n' + CHANGELOG,
     author='edX',
     author_email='oscm@edx.org',
-    url='https://github.com/edx/dt-classroom',
+    url='https://github.com/Dicey-Tech/dt-classroom',
     packages=[
         'classroom',
     ],

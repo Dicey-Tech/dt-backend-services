@@ -3,3 +3,7 @@
 
 Django>=2.2              # Web application framework
 
+django-model-utils       # Provides TimeStampedModel abstract base class
+djangorestframework
+
+edx-django-utils
