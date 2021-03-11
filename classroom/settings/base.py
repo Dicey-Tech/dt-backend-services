@@ -220,3 +220,6 @@ PLATFORM_NAME = "Your Platform Name Here"
 
 # Set up logging for development use (logging to stdout)
 LOGGING = get_logger_config(debug=DEBUG)
+
+# Default URLS for LMS
+LMS_BASE_URL = os.environ.get("LMS_BASE_URL", "")
