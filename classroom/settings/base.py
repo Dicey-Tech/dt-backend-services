@@ -43,6 +43,7 @@ THIRD_PARTY_APPS = (
 PROJECT_APPS = (
     "classroom.apps.core",
     "classroom.apps.api",
+    "classroom.apps.classroom",
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
