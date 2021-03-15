@@ -9,14 +9,16 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 
-class ClassroomInstance(TimeStampedModel):
+class Classroom(TimeStampedModel):
     """
     A Classroom is an entity grouping learners, teachers and courses automating
     the enrollment.
 
     Fields:
-        uuid (UUIDField, PRIMARY KEY): Classroom Instance code - used
-            other parts of the system (SSO, ecommerce, analytics etc.).
+        uuid (UUIDField, PRIMARY KEY): Classroom Instance identification code.
+        school
+        name
+        active
     """
 
     class Meta:
@@ -30,6 +32,7 @@ class ClassroomInstance(TimeStampedModel):
     name = models.CharField(
         max_length=140,
         blank=False,
+        default="Your Classroom Name",
         help_text=_("Specifies the displayed name of the classroom"),
     )
     active = models.BooleanField(default=True)
@@ -50,15 +53,20 @@ class ClassroomInstance(TimeStampedModel):
 class ClassroomEnrollement(TimeStampedModel):
     """
     Store infromation about the enrollment of a user in a classroom.
+
+    Fields:
+        classroom_id (UUIDField, PRIMARY KEY): Classroom Instance identification code.
+        user_id
+        active
     """
 
     class Meta:
-        unique_together = (("classroom_instance_id", "user_id"),)
+        unique_together = (("classroom_id", "user_id"),)
         app_label = "classroom"
         ordering = ["created"]
 
-    classroom_instance_id = models.ForeignKey(
-        ClassroomInstance,
+    classroom_id = models.ForeignKey(
+        Classroom,
         blank=True,
         null=True,
         on_delete=models.deletion.CASCADE,

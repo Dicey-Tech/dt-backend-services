@@ -7,7 +7,12 @@ from classroom.apps.api.v1 import views
 app_name = "v1"
 
 router = DefaultRouter()
-router.register(r"classroom", views.ClassroomCRUDViewSet, basename="classroom")
+router.register(r"classrooms", views.ClassroomsViewSet, basename="classrooms")
+router.register(
+    r"classroom-enrollments",
+    views.ClassroomEnrollmentViewSet,
+    basename="classrooms-enrollments",
+)
 
 urlpatterns = []
 
