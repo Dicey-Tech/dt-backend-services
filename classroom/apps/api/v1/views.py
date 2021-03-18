@@ -1,5 +1,5 @@
 """
-Viewsets
+Views for classroom end points.
 """
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
@@ -17,14 +17,14 @@ class ClassroomsViewSet(viewsets.ModelViewSet):
     """
     Classroom view to:
         - list classroom data (GET .../)
-        - retrieve single classroom (GET .../<short_name>)
+        - retrieve single classroom (GET .../<uuid>)
         - create an classroom via the POST endpoint (POST .../)
-        - update an classroom via the PUT endpoint (PUT .../<short_name>)
+        - update an classroom via the PUT endpoint (PUT .../<uuid>)
     """
 
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
-    # lookup_field
+    lookup_field = "uuid"
     # authentication_classes = [JwtAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
@@ -51,6 +51,20 @@ class ClassroomsViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        We disable DELETE because all classromms should be kept and deactivated to be
+        archived.
+        """
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        We disable DELETE because all classromms should be kept and deactivated to be
+        archived.
+        """
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
