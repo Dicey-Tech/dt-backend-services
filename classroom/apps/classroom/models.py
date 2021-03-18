@@ -30,7 +30,7 @@ class Classroom(TimeStampedModel):
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     school = models.UUIDField(null=False, help_text=_("School uuid."))
     name = models.CharField(
-        max_length=140,
+        max_length=255,
         blank=False,
         default="Your Classroom Name",
         help_text=_("Specifies the displayed name of the classroom"),

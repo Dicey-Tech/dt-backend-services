@@ -8,20 +8,20 @@ import ddt
 from pytest import mark
 from django.test import TestCase
 
-from classroom.apps.classroom.models import ClassroomInstance
+from classroom.apps.classroom.models import Classroom
 
 
 @mark.django_db
 @ddt.ddt
 class TestClassroomInstance(TestCase):
     """
-    Tests for the ClassroomInstance model.
+    Tests for the Classroom model.
     """
 
     def setUp(self) -> None:
         self.name = "Demo Class"
         self.school = uuid4()
-        self.classroom_instance = ClassroomInstance.objects.create(
+        self.classroom_instance = Classroom.objects.create(
             name=self.name,
             school=self.school,
         )

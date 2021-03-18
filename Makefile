@@ -159,16 +159,16 @@ travis_docker_push: travis_docker_tag travis_docker_auth ## push to docker hub
 
 # devstack-themed shortcuts
 dev.up: # Starts all containers
-	docker-compose up -d
+	docker-compose -f docker-compose.dev.yml up -d
 
 dev.up.build:
-	docker-compose up -d --build
+	docker-compose -f docker-compose.dev.yml up -d --build
 
 dev.down: # Kills containers and all of their data that isn't in volumes
-	docker-compose down
+	docker-compose -f docker-compose.dev.yml down
 
 dev.stop: # Stops containers so they can be restarted
-	docker-compose stop
+	docker-compose -f docker-compose.dev.yml stop
 
 app-shell: # Run the app shell as root
 	docker exec -u 0 -it classroom.app bash

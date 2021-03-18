@@ -20,7 +20,7 @@ cryptography==3.4.6
     # via
     #   pyjwt
     #   social-auth-core
-defusedxml==0.6.0
+defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
@@ -66,7 +66,7 @@ edx-auth-backends==3.3.3
     # via -r requirements/base.in
 edx-django-release-util==1.0.0
     # via -r requirements/base.in
-edx-django-utils==3.13.0
+edx-django-utils==3.15.0
     # via
     #   -r requirements/base.in
     #   edx-drf-extensions
@@ -167,5 +167,5 @@ stevedore==3.3.0
     #   edx-opaque-keys
 uritemplate==3.0.1
     # via coreapi
-urllib3==1.26.3
+urllib3==1.26.4
     # via requests

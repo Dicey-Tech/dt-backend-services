@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  #db:
+  #  image: mysql:5.7
+  #  container_name: classroom.db
+  #  environment:
+  #    MYSQL_ROOT_PASSWORD: ""
+  #    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  app:
+    image: diceytech/classroom-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: python manage.py runserver 0.0.0.0:8180
+    container_name: classroom.app
+    environment:
+      DJANGO_SETTINGS_MODULE: classroom.settings.local
+    volumes:
+      - .:/app
+    ports:
+      - "8180:8180"
+    #depends_on:
+    #  - db
+    stdin_open: true
+    tty: true

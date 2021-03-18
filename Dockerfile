@@ -1,5 +1,5 @@
 FROM ubuntu:bionic as app
-MAINTAINER devops@edx.org
+LABEL maintainer="devops@diceytech.co.uk"
 
 
 # Packages installed:
@@ -35,7 +35,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-ENV DJANGO_SETTINGS_MODULE classroom.settings.production
+ENV DJANGO_SETTINGS_MODULE classroom.settings.local
 
 EXPOSE 8180
 RUN useradd -m --shell /bin/false app
@@ -44,10 +44,10 @@ WORKDIR /edx/app/classroom
 
 # Copy the requirements explicitly even though we copy everything below
 # this prevents the image cache from busting unless the dependencies have changed.
-COPY requirements/production.txt /edx/app/classroom/requirements/production.txt
+COPY requirements/dev.txt /edx/app/classroom/requirements/dev.txt
 
 # Dependencies are installed as root so they cannot be modified by the application user.
-RUN pip3 install -r requirements/production.txt
+RUN pip3 install -r requirements/dev.txt
 
 RUN mkdir -p /edx/var/log
 
@@ -62,6 +62,6 @@ CMD gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker
 # bust the image cache
 COPY . /edx/app/classroom
 
-FROM app as newrelic
-RUN pip install newrelic
-CMD newrelic-admin run-program gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker_gunicorn_configuration.py --log-file - --max-requests=1000 classroom.wsgi:application
+#FROM app as newrelic
+#RUN pip install newrelic
+#CMD newrelic-admin run-program gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker_gunicorn_configuration.py --log-file - --max-requests=1000 classroom.wsgi:application

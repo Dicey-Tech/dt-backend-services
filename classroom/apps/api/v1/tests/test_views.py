@@ -12,6 +12,12 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from classroom.apps.api.tests.factories import (
+    UserFactory,
+    USER_PASSWORD,
+    ClassroomFactory,
+)
+
 FAKE_UUIDS = [str(uuid4()) for i in range(5)]
 FAKE_USER_ID = 1
 
@@ -23,13 +29,26 @@ class ClassroomsViewSetTests(APITestCase):
     """
 
     def setUp(self) -> None:
-        self.endpoint = reverse("api:v1:classrooms-list")
-        self.user = get_user_model().objects.create_user(
-            "teacher@school.com",
-            "Teacher",
-        )
-        self.client.force_login(self.user)
         super().setUp()
+
+        self.user = UserFactory(is_superuser=True)
+        # self.client.login(username=self.user, password=USER_PASSWORD)
+        self.client.force_login(self.user)
+        self.classroom_list_url = reverse("api:v1:classrooms-list")
+
+    def test_authenticaion_required(self):
+        """ Test that authentication is required to access view """
+        # TODO Does the response need to change to hide implementation?
+        self.client.logout()
+        response = self.client.get(self.classroom_list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authenticated_user(self):
+        """ Test that the autenticated user gets data """
+        ClassroomFactory.create()
+        response = self.client.get(self.classroom_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
 
     @ddt.data(
         {
@@ -49,7 +68,7 @@ class ClassroomsViewSetTests(APITestCase):
         # TODO User should be logged in and have sufficient permissions
         """
         response = self.client.post(
-            self.endpoint,
+            self.classroom_list_url,
             data=json.dumps(request_data),
             content_type="application/json",
         )
