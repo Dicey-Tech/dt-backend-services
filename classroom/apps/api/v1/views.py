@@ -4,7 +4,9 @@ Views for classroom end points.
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from classroom.apps.api.serializers import (
     ClassroomSerializer,
@@ -51,6 +53,32 @@ class ClassroomsViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
+
+    def update(self, request, *args, **kwargs):
+        """
+        Update a classroom data.
+
+        The 'school' may not be specified via the HTTP API since it can only be
+        assigned when the classroom is created.
+        """
+        classroom = get_object_or_404(Classroom, uuid=kwargs.get("uuid"))
+
+        name = (
+            request.data.get("name")
+            if not request.data.get("name") == ""
+            else classroom.name
+        )
+
+        data = {
+            "school": classroom.school,
+            "name": name,
+            "active": request.data.get("active", classroom.active),
+        }
+
+        classroom_serializer = ClassroomSerializer(instance=classroom, data=data)
+        classroom_serializer.is_valid(raise_exception=True)
+        classroom_serializer.save()
+        return Response(classroom_serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         """

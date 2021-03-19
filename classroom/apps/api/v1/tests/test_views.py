@@ -71,15 +71,14 @@ class ClassroomsViewSetTests(APITestCase):
             content_type="application/json",
         )
 
-        try:
-            if request_data["school"]:
-                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-                response = json.loads(response.content)
-
-                self.assertIsNotNone(response["uuid"])
-                self.assertEqual(response["uuid"], response["teacher_enrollment"])
-        except KeyError:
+        if not request_data.get("school"):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        else:
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            response = json.loads(response.content)
+
+            self.assertIsNotNone(response.get("uuid"))
+            self.assertEqual(response.get("uuid"), response.get("teacher_enrollment"))
 
     @ddt.data(
         {
@@ -102,18 +101,18 @@ class ClassroomsViewSetTests(APITestCase):
     )
     def test_update_classroom(self, request_data):
         """ Test Classroom can be updated via PUT endpoint except for the school uuid """
-        try:
-            data = {
-                "name": request_data["name"],
-                "school": request_data["school"],
-                "active": request_data["active"],
-            }
-        except KeyError:
-            data = {
-                "name": request_data["name"],
-                "school": self.classroom.school,
-                "active": request_data["active"],
-            }
+
+        school = (
+            request_data.get("school")
+            if request_data.get("school")
+            else self.classroom.school
+        )
+
+        data = {
+            "name": request_data.get("name"),
+            "school": school,
+            "active": request_data.get("active"),
+        }
 
         url = reverse(
             "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom.uuid)}
@@ -121,13 +120,13 @@ class ClassroomsViewSetTests(APITestCase):
 
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsNot(response.data["school"], FAKE_UUIDS[1])
+        self.assertIsNot(request_data.get("school"), self.classroom.school)
 
-        if data["name"] == "":
-            self.assertEqual(response.data["name"], self.classroom.name)
-            self.assertIsNot(response.data["name"], data["name"])
+        if data.get("name") == "":
+            self.assertEqual(response.data.get("name"), self.classroom.name)
+            self.assertIsNot(response.data.get("name"), data.get("name"))
         else:
-            self.assertEqual(response.data["name"], data["name"])
+            self.assertEqual(response.data.get("name"), data.get("name"))
 
     def test_delete_classroom(self):
         """ Test DELETE endpoint returns 405 because we don't support it """
