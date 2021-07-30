@@ -25,10 +25,10 @@
 		"python.languageServer": "Pylance",
 		"python.linting.enabled": true,
 		//"python.linting.pylintEnabled": true,
-		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
-		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
-		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+		"python.formatting.blackPath": "/usr/local/bin/black",
+		"python.linting.flake8Path": "/usr/local/bin/flake8",
+		"python.linting.mypyPath": "/usr/local/bin/mypy",
+		"python.linting.pydocstylePath": "/usr/local/bin/pydocstyle",
 	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
@@ -39,7 +39,7 @@
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [
-		8180
+		18180
 	],
 	// Use 'portsAttributes' to set default properties for specific forwarded ports. More info: https://code.visualstudio.com/docs/remote/devcontainerjson-reference.
 	//"portsAttributes": {},

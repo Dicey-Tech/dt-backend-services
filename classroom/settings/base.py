@@ -4,6 +4,13 @@ from os.path import abspath, dirname, join
 from corsheaders.defaults import default_headers as corsheaders_default_headers
 
 from classroom.settings.utils import get_logger_config
+from classroom.apps.classroom.constants import (
+    SYSTEM_ENTERPRISE_ADMIN_ROLE,
+    SYSTEM_ENTERPRISE_LEARNER_ROLE,
+    SYSTEM_ENTERPRISE_OPERATOR_ROLE,
+    CLASSROOM_TEACHER_ROLE,
+    CLASSROOM_LEARNER_ROLE,
+)
 
 # PATH vars
 here = lambda *x: join(abspath(dirname(__file__)), *x)
@@ -29,6 +36,7 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "release_util",
+    "rules.apps.AutodiscoverRulesConfig",
 )
 
 THIRD_PARTY_APPS = (
@@ -53,7 +61,7 @@ MIDDLEWARE = (
     # Resets RequestCache utility for added safety.
     "edx_django_utils.cache.middleware.RequestCacheMiddleware",
     # Enables monitoring utility for writing custom metrics.
-    "edx_django_utils.monitoring.middleware.MonitoringCustomMetricsMiddleware",
+    "edx_django_utils.monitoring.CachedCustomMonitoringMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -68,7 +76,7 @@ MIDDLEWARE = (
     # Enables force_django_cache_miss functionality for TieredCache.
     "edx_django_utils.cache.middleware.TieredCacheMiddleware",
     # Outputs monitoring metrics for a request.
-    "edx_rest_framework_extensions.middleware.RequestMetricsMiddleware",
+    "edx_rest_framework_extensions.middleware.RequestCustomAttributesMiddleware",
     # Ensures proper DRF permissions in support of JWTs
     "edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware",
 )
@@ -96,6 +104,23 @@ DATABASES = {
         "PORT": "",  # Set to empty string for default.
     }
 }
+
+# Django Rest Framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "edx_rest_framework_extensions.auth.jwt.authentication.JwtAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAdminUser",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "PAGE_SIZE": 100,
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
@@ -177,6 +202,7 @@ AUTH_USER_MODEL = "core.User"
 
 AUTHENTICATION_BACKENDS = (
     "auth_backends.backends.EdXOAuth2",
+    "rules.permissions.ObjectPermissionBackend",
     "django.contrib.auth.backends.ModelBackend",
 )
 
@@ -205,6 +231,17 @@ JWT_AUTH = {
     "JWT_AUTH_COOKIE_HEADER_PAYLOAD": "edx-jwt-cookie-header-payload",
     "JWT_AUTH_COOKIE_SIGNATURE": "edx-jwt-cookie-signature",
     "JWT_AUTH_REFRESH_COOKIE": "edx-jwt-refresh-cookie",
+    "JWT_SECRET_KEY": "SET-ME-PLEASE",
+    # JWT_ISSUERS enables token decoding for multiple issuers (Note: This is not a native DRF-JWT field)
+    # We use it to allow different values for the 'ISSUER' field, but keep the same SECRET_KEY and
+    # AUDIENCE values across all issuers.
+    "JWT_ISSUERS": [
+        {
+            "AUDIENCE": "SET-ME-PLEASE",
+            "ISSUER": "http://localhost:18000/oauth2",
+            "SECRET_KEY": "SET-ME-PLEASE",
+        },
+    ],
 }
 
 # Request the user's permissions in the ID token
@@ -224,3 +261,10 @@ LOGGING = get_logger_config(debug=DEBUG)
 
 # Default URLS for LMS
 LMS_BASE_URL = os.environ.get("LMS_BASE_URL", "")
+
+# Set up system-to-feature roles mapping for edx-rbac
+SYSTEM_TO_FEATURE_ROLE_MAPPING = {
+    SYSTEM_ENTERPRISE_ADMIN_ROLE: [CLASSROOM_TEACHER_ROLE],
+    SYSTEM_ENTERPRISE_OPERATOR_ROLE: [CLASSROOM_TEACHER_ROLE],
+    SYSTEM_ENTERPRISE_LEARNER_ROLE: [CLASSROOM_LEARNER_ROLE],
+}
