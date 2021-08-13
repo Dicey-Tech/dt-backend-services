@@ -1,6 +1,8 @@
 """
 Classroom API Test Cases
 """
+
+import logging
 import json
 from uuid import uuid4
 import ddt
@@ -20,8 +22,12 @@ from classroom.apps.classroom import constants
 from classroom.apps.api.tests.factories import (
     UserFactory,
     ClassroomFactory,
+    ClassroomEnrollmentFactory,
+    USER_PASSWORD,
 )
 
+
+logger = logging.getLogger(__name__)
 
 FAKE_UUIDS = [str(uuid4()) for i in range(5)]
 FAKE_USER_ID = 1
@@ -47,7 +53,6 @@ def _set_encoded_jwt_in_cookies(client, payload):
     """
     JWT-encodes the given payload and sets it in the client's cookies.
     """
-    print(f"{jwt_cookie_name()}: f{generate_jwt_token(payload)}")
     client.cookies[jwt_cookie_name()] = generate_jwt_token(payload)
 
 
@@ -69,13 +74,28 @@ class ClassroomsViewSetTests(APITestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.user = UserFactory()
-        # self.client.login(username=self.user, password=USER_PASSWORD)
-        self.client.force_login(self.user)
+        self.teacher_1 = UserFactory()
+        self.teacher_2 = UserFactory()
+        self.classroom_1 = ClassroomFactory.create(school=FAKE_UUIDS[0])
+        self.classroom_2 = ClassroomFactory.create(school=FAKE_UUIDS[0])
+        self.classroom_3 = ClassroomFactory.create(school=FAKE_UUIDS[0])
+        self.classroom_4 = ClassroomFactory.create(school=FAKE_UUIDS[1])
+
+        self.enrollment_1 = ClassroomEnrollmentFactory.create(
+            classroom_instance=self.classroom_1, user_id=self.teacher_1.id
+        )
+        self.enrollment_2 = ClassroomEnrollmentFactory.create(
+            classroom_instance=self.classroom_2, user_id=self.teacher_1.id
+        )
+        self.enrollment_3 = ClassroomEnrollmentFactory.create(
+            classroom_instance=self.classroom_3, user_id=self.teacher_2.id
+        )
+
+        self.client.login(username=self.teacher_1, password=USER_PASSWORD)
+
         self.classroom_list_url = reverse("api:v1:classrooms-list")
-        self.classroom = ClassroomFactory.create(school=FAKE_UUIDS[0])
         self.classroom_detail_url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": self.classroom.uuid}
+            "api:v1:classrooms-detail", kwargs={"uuid": self.classroom_1.uuid}
         )
 
     def test_unauthenticated_user_401(self):
@@ -92,11 +112,14 @@ class ClassroomsViewSetTests(APITestCase):
         # init a JWT cookie (so the user is authenticated) but don't provide any roles
         init_jwt_cookie(
             self.client,
-            self.user,
+            self.teacher_1,
         )
 
         response = self.client.get(self.classroom_list_url)
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # TODO Add test for user with explicit role
 
     def test_authenticated_user_with_teacher_role(self):
         """Test that the autenticated user gets data"""
@@ -104,13 +127,14 @@ class ClassroomsViewSetTests(APITestCase):
         # init a JWT cookie (so the user is authenticated) but don't provide any roles
         init_jwt_cookie(
             self.client,
-            self.user,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
         response = self.client.get(self.classroom_list_url)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data["count"], 2)
 
     def test_access_classroom_detail(self):
         """Test that a teacher can get details from her/his classrooms"""
@@ -118,11 +142,12 @@ class ClassroomsViewSetTests(APITestCase):
         # init a JWT cookie (so the user is authenticated) but don't provide any roles
         init_jwt_cookie(
             self.client,
-            self.user,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
         response = self.client.get(self.classroom_detail_url)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @ddt.data(
@@ -145,8 +170,8 @@ class ClassroomsViewSetTests(APITestCase):
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
             self.client,
-            self.user,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
         response = self.client.post(
@@ -189,14 +214,14 @@ class ClassroomsViewSetTests(APITestCase):
         school = (
             request_data.get("school")
             if request_data.get("school")
-            else self.classroom.school
+            else self.classroom_1.school
         )
 
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
             self.client,
-            self.user,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
         data = {
@@ -206,15 +231,15 @@ class ClassroomsViewSetTests(APITestCase):
         }
 
         url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom.uuid)}
+            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom_1.uuid)}
         )
 
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsNot(request_data.get("school"), self.classroom.school)
+        self.assertIsNot(request_data.get("school"), self.classroom_1.school)
 
         if data.get("name") == "":
-            self.assertEqual(response.data.get("name"), self.classroom.name)
+            self.assertEqual(response.data.get("name"), self.classroom_1.name)
             self.assertIsNot(response.data.get("name"), data.get("name"))
         else:
             self.assertEqual(response.data.get("name"), data.get("name"))
@@ -222,14 +247,14 @@ class ClassroomsViewSetTests(APITestCase):
     def test_delete_classroom(self):
         """Test DELETE endpoint returns 405 because we don't support it"""
         url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom.uuid)}
+            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom_1.uuid)}
         )
 
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
             self.client,
-            self.user,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
         response = self.client.delete(url)
@@ -238,14 +263,14 @@ class ClassroomsViewSetTests(APITestCase):
     def test_partial_update_classroom(self):
         """Test PATCH endpoint returns 405 because we don't support it"""
         url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom.uuid)}
+            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom_1.uuid)}
         )
 
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
             self.client,
-            self.user,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
         response = self.client.patch(url)

@@ -8,7 +8,7 @@ from classroom.apps.classroom.models import Classroom, ClassroomEnrollement
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
-    """ Serializes the Classroom object """
+    """Serializes the Classroom object"""
 
     class Meta:
         model = Classroom
@@ -17,8 +17,8 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 
 class ClassroomEnrollementSerializer(serializers.ModelSerializer):
-    """ Serializes the ClassroomEnrollement object """
+    """Serializes the ClassroomEnrollement object"""
 
     class Meta:
         model = ClassroomEnrollement
-        fields = ["classroom_id", "user_id", "active"]
+        fields = ["classroom_instance", "user_id", "active"]

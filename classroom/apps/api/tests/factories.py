@@ -4,18 +4,17 @@ Provides factory for Tests.
 from uuid import uuid4
 from django.utils.translation import activate
 
-from faker import Faker
 import factory
 from factory.django import DjangoModelFactory
 
 from classroom.apps.core.models import User
-from classroom.apps.classroom.models import Classroom
+from classroom.apps.classroom.models import Classroom, ClassroomEnrollement
 
 USER_PASSWORD = "password"
 
 
 class UserFactory(DjangoModelFactory):
-    """ User creation factory """
+    """User creation factory"""
 
     class Meta:
         model = User
@@ -32,7 +31,7 @@ class UserFactory(DjangoModelFactory):
 
 
 class ClassroomFactory(DjangoModelFactory):
-    """ Classroom creation factory """
+    """Classroom creation factory"""
 
     class Meta:
         model = Classroom
@@ -40,4 +39,15 @@ class ClassroomFactory(DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = factory.Faker("name")
     school = factory.LazyFunction(uuid4)
+    active = True
+
+
+class ClassroomEnrollmentFactory(DjangoModelFactory):
+    """Classroom enrollment creation factory"""
+
+    class Meta:
+        model = ClassroomEnrollement
+
+    classroom_instance = Classroom()
+    user_id = 1
     active = True

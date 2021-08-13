@@ -64,11 +64,11 @@ class ClassroomEnrollement(TimeStampedModel):
     """
 
     class Meta:
-        unique_together = (("classroom_id", "user_id"),)
+        unique_together = (("classroom_instance", "user_id"),)
         app_label = "classroom"
         ordering = ["created"]
 
-    classroom_id = models.ForeignKey(
+    classroom_instance = models.ForeignKey(
         Classroom,
         blank=True,
         null=True,
@@ -88,7 +88,7 @@ class ClassroomEnrollement(TimeStampedModel):
         """
         Return a human-readable string representation.
         """
-        return f"<ClassroomEnrollment for user {self.user_id} in course with ID {self.classroom_instance_id}>"
+        return f"<ClassroomEnrollment for user {self.user_id} in classroom with ID {self.classroom_instance.uuid}>"
 
     def __repr__(self):
         """

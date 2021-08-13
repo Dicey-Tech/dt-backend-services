@@ -6,7 +6,7 @@ import logging
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
-from rest_framework.exceptions import ValidationError, ParseError
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
@@ -54,22 +54,29 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         Required by the `PermissionRequiredForListingMixin`.
         For non-list actions, this is what's returned by `get_queryset()`.
         For list actions, some non-strict subset of this is what's returned by `get_queryset()`.
+
+        Returns all classrooms that the user is enrolled in.
         """
-        # TODO get the school/enterprise uuid of the user and use it get all classroom
-        # linked ot their school.
-        """
+
         kwargs = {}
         if self.requested_school_uuid:
             kwargs.update({"school": self.requested_school_uuid})
         if self.requested_classroom_uuid:
             kwargs.update({"uuid": self.requested_classroom_uuid})
-        logger.debug(f"base_queryset: {kwargs}")
-        """
-        return Classroom.objects.all()
+
+        enrollments = ClassroomEnrollement.objects.filter(user_id=self.request.user.id)
+        classroom_ids = []
+
+        for enrollment in enrollments:
+            classroom_ids.append(enrollment.classroom_instance.uuid)
+
+        return Classroom.objects.filter(uuid__in=classroom_ids)
 
     @property
     def requested_school_uuid(self):
-
+        """
+        Return school uuid
+        """
         if self.requested_classroom_uuid:
             school_uuid = Classroom.objects.get(
                 uuid=self.requested_classroom_uuid
@@ -77,13 +84,12 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         else:
             school_uuid = self.request.data.get("school")
 
-        logger.debug(f"requested_school_uuid: {school_uuid}")
-
         if not school_uuid:
             return None
         try:
             return school_uuid
         except ValueError as exc:
+            # TODO Test this
             raise ParseError(f"{school_uuid} is not a valid uuid.") from exc
 
     @property
@@ -99,7 +105,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         classroom_data.save()
 
         enrollment_data = {
-            "classroom_id": classroom_data.data["uuid"],
+            "classroom_instance": classroom_data.data["uuid"],
             "user_id": request.user.id,
         }
 
@@ -110,7 +116,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Response(
             {
                 **classroom_data.data,
-                "teacher_enrollment": enrollment_serializer.data["classroom_id"],
+                "teacher_enrollment": enrollment_serializer.data["classroom_instance"],
             },
             status=status.HTTP_201_CREATED,
         )
@@ -163,8 +169,6 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         The requesting user needs to be part of a school to have access to the classroom
         feature.
         """
-        logger.debug(f"Get data from request: {str(self.kwargs.get('uuid'))}")
-
         return self.requested_school_uuid
 
 
