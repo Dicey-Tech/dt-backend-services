@@ -5,9 +5,9 @@ Django>=2.2.24          # Web application framework
 django-cors-headers
 django-extensions
 django-model-utils       # Provides TimeStampedModel abstract base class
-django-rest-swagger
 django-waffle
 djangorestframework
+edx-api-doc-tools
 edx-auth-backends
 edx-django-utils
 edx-django-release-util

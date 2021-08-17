@@ -40,10 +40,12 @@ INSTALLED_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    # API Documentation
+    "drf_yasg",
+    "edx_api_doc_tools",
     "corsheaders",
     "csrf.apps.CsrfAppConfig",  # Enables frontend apps to retrieve CSRF tokens
     "rest_framework",
-    "rest_framework_swagger",
     "social_django",
     "waffle",
 )

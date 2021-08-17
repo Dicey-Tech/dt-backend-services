@@ -16,12 +16,12 @@ LOGGING = get_logger_config()
 # the values read from disk should UPDATE the pre-configured dicts.
 DICT_UPDATE_KEYS = ("JWT_AUTH",)
 
-# This may be overridden by the YAML in classroom_CFG,
+# This may be overridden by the YAML in CLASSROOM_CFG,
 # but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
 FILE_STORAGE_BACKEND = {}
 
-CONFIG_FILE = get_env_setting("classroom_CFG")
+CONFIG_FILE = get_env_setting("CLASSROOM_CFG")
 with open(CONFIG_FILE, encoding="utf-8") as f:
     config_from_yaml = yaml.load(f)
 

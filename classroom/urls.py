@@ -19,22 +19,26 @@ from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from rest_framework_swagger.views import get_swagger_view
+from edx_api_doc_tools import make_api_info, make_docs_urls
 
 from classroom.apps.api import urls as api_urls
 from classroom.apps.core import views as core_views
 
-
 admin.autodiscover()
+
+api_info = make_api_info(
+    title="Classroom API", version="v1", description="APIs for Dicey Tech Classroom"
+)
 
 urlpatterns = oauth2_urlpatterns + [
     url(r"^admin/", admin.site.urls),
     url(r"^api/", include(api_urls)),
-    url(r"^api-docs/", get_swagger_view(title="classroom API")),
     url(r"^auto_auth/$", core_views.AutoAuth.as_view(), name="auto_auth"),
     url(r"", include("csrf.urls")),  # Include csrf urls from edx-drf-extensions
     url(r"^health/$", core_views.health, name="health"),
 ]
+
+urlpatterns += make_docs_urls(api_info)
 
 if settings.DEBUG and os.environ.get(
     "ENABLE_DJANGO_TOOLBAR", False
