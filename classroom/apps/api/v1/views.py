@@ -3,9 +3,11 @@ Views for classroom end points.
 """
 
 import logging
+import json
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -156,8 +158,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     def partial_update(self, request, *args, **kwargs):
         """
-        We disable DELETE because all classromms should be kept and deactivated to be
-        archived.
+        We disable PATCH because all classroom modifications should done with the UPDATE
+        endpoint.
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -171,8 +173,77 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         """
         return self.requested_school_uuid
 
+    @action(detail=True, methods=["get"])
+    def enrollments(self, request, uuid):
+        """Returns a list of enrollments for a classroom"""
+        queryset = ClassroomEnrollement.objects.filter(
+            classroom_instance__uuid=uuid, active=True
+        )
+
+        serializer = self.enrollment_serializer_class(queryset, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
-    queryset = ClassroomEnrollement.objects.all()
-    serializer_class = ClassroomEnrollementSerializer
+    """
+    Viewset for operations on classroom enrollments
+
+    Example requests:
+    GET api/v1/
+    """
+
+    authentication_classes = [JwtAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+
+    lookup_fields = ("classroom_instance", "user_id")
+    lookup_url_kwargs = ("classroom_instance", "user_id")
+    filterset_fields = ("classroom_instance", "user_id")
+
+    queryset = ClassroomEnrollement.objects.all().select_related("classroom")
+    serializer_class = ClassroomEnrollementSerializer
+
+    def get_object(self):
+        """Search by classroom UUID and user"""
+
+        logger.debug("get_object")
+        queryset = self.filter_queryset(self.get_queryset())
+        filter_kwargs = {
+            key: self.kwargs[value]
+            for key, value in zip(self.lookup_fields, self.lookup_url_kwargs)
+        }
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a classroom enrollment
+        Parameters:
+            - classroom_instance: UUID to the Classroom the enrollment is linked to
+            - user_id: ID of the user enrolled in the Classroom
+        """
+        enrollment_data = {
+            "classroom_instance": request.data.get("classroom_uuid"),
+            "user_id": self.request.data.get("user_id"),
+        }
+
+        enrollment = self.serializer_class(data=enrollment_data)
+        enrollment.is_valid(raise_exception=True)
+        enrollment.save()
+
+        return Response(
+            data=enrollment_data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    def retrieve(self, request, classroom_instance=None, user_id=None):
+        logger.debug("retrieve")
+        pass
+
+    def destroy(self, request, *args, **kwargs):
+        logger.debug("DELETE")
+        return super().destroy(request, *args, **kwargs)

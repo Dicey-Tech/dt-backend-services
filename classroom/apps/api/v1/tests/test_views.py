@@ -68,7 +68,7 @@ def init_jwt_cookie(client, user, role_context_pairs=None, jwt_payload_extra=Non
 @ddt.ddt
 class ClassroomsViewSetTests(APITestCase):
     """
-    Tests for the ClassroomCRUDViewSet
+    Tests for the ClassroomsViewSet
     """
 
     def setUp(self) -> None:
@@ -137,7 +137,7 @@ class ClassroomsViewSetTests(APITestCase):
         self.assertEqual(response.data["count"], 2)
 
     def test_access_classroom_detail(self):
-        """Test that a teacher can get details from her/his classrooms"""
+        """Test that teachers can get details from their classrooms"""
 
         # init a JWT cookie (so the user is authenticated) but don't provide any roles
         init_jwt_cookie(
@@ -165,7 +165,6 @@ class ClassroomsViewSetTests(APITestCase):
     def test_create_classroom(self, request_data):
         """
         Test POST classroom creates a classroom with the user as a teacher.
-        # TODO User should be logged in and have sufficient permissions
         """
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
@@ -246,10 +245,6 @@ class ClassroomsViewSetTests(APITestCase):
 
     def test_delete_classroom(self):
         """Test DELETE endpoint returns 405 because we don't support it"""
-        url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom_1.uuid)}
-        )
-
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
             self.client,
@@ -257,14 +252,23 @@ class ClassroomsViewSetTests(APITestCase):
             [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
-        response = self.client.delete(url)
+        response = self.client.delete(self.classroom_detail_url)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_partial_update_classroom(self):
         """Test PATCH endpoint returns 405 because we don't support it"""
-        url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom_1.uuid)}
+
+        init_jwt_cookie(
+            self.client,
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
+
+        response = self.client.patch(self.classroom_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_all_enrollments_in_classroom(self):
+        """Test"""
 
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
@@ -273,5 +277,12 @@ class ClassroomsViewSetTests(APITestCase):
             [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
-        response = self.client.patch(url)
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        url = reverse(
+            "api:v1:classrooms-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
+        )
+        logger.debug(url)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)

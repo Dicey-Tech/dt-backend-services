@@ -32,7 +32,7 @@ def has_implicit_access_to_classroom_admin(
     Returns:
         boolean: whether the request user has access.
     """
-    logger.debug(f"has_implicit_access_to_classroom_admin school_uuid: {school_uuid}")
+
     if not school_uuid:
         return False
 

@@ -22,3 +22,14 @@ class ClassroomEnrollementSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassroomEnrollement
         fields = ["classroom_instance", "user_id", "active"]
+
+    def to_representation(self, instance):
+        """Convert `username` to lowercase."""
+        ret = super().to_representation(instance)
+        ret["classroom_instance"] = str(ret["classroom_instance"])
+        ret = {
+            "pk": instance.pk,
+            "user_id": instance.user_id,
+        }
+
+        return ret
