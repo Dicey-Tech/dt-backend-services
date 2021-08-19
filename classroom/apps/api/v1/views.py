@@ -44,6 +44,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
     permission_classes = [permissions.IsAuthenticated]
 
     lookup_field = "uuid"
+    lookup_url_kwarg = "classroom_uuid"
+
     serializer_class = ClassroomSerializer
     enrollment_serializer_class = ClassroomEnrollementSerializer
     permission_required = constants.CLASSROOM_TEACHER_ACCESS_PERMISSION
@@ -115,7 +117,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     @property
     def requested_classroom_uuid(self):
-        return self.kwargs.get("uuid")
+        return self.kwargs.get("classroom_uuid")
 
     def create(self, request, *args, **kwargs):
         """
@@ -137,7 +139,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Response(
             {
                 **classroom_serializer.data,
-                "enrollment_pk": enrollment_serializer.data["pk"],
+                "enrollment_uuid": enrollment_serializer.data["enrollment_uuid"],
             },
             status=status.HTTP_201_CREATED,
         )
@@ -149,7 +151,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         The 'school' may not be specified via the HTTP API since it can only be
         assigned when the classroom is created.
         """
-        classroom = get_object_or_404(Classroom, uuid=kwargs.get("uuid"))
+        classroom = get_object_or_404(Classroom, uuid=kwargs.get("classroom_uuid"))
 
         name = (
             request.data.get("name")
@@ -204,16 +206,18 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"])
-    def enroll(self, request, uuid):
+    def enroll(self, request, classroom_uuid):
         """Create enrollment(s) for one or more users"""
 
         identifiers_raw = request.data.get("identifiers")
         identifiers = self._split_input_list(identifiers_raw)
         for identifier in identifiers:
+            # TODO get the user id from the LMS
+            # TODO validate the users are part of the same enterprise
             user_id = User.objects.get(email=identifier).id
 
             enrollment_data = {
-                "classroom_instance": uuid,
+                "classroom_instance": classroom_uuid,
                 "user_id": user_id,
             }
 
@@ -234,14 +238,16 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     Enrollment view to:
         - retrieve single enrollment (GET .../<pk>)
         - create one or multiple enrollments via the POST endpoint (POST .../)
+
+    Viewset for operations on individual enrollments in a given classroom.
     """
 
-    authentication_classes = [JwtAuthentication]
+    # authentication_classes = [JwtAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    lookup_fields = ("classroom_instance", "user_id")
-    lookup_url_kwargs = ("classroom_instance", "user_id")
-    filterset_fields = ("classroom_instance", "user_id")
+    lookup_field = "uuid"
+    lookup_url_kwarg = "enrollment_uuid"
+    # filterset_fields = ("classroom_instance", "user_id")
 
     queryset = ClassroomEnrollement.objects.all().select_related("classroom_instance")
     serializer_class = ClassroomEnrollementSerializer
@@ -266,12 +272,6 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
             data=enrollment_data,
             status=status.HTTP_201_CREATED,
         )
-
-    def list(self, request, *args, **kwargs):
-        """
-        Disable GET for a list of enrollments, use classroom/<uuid>/enrollments instead.
-        """
-        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def update(self, request, *args, **kwargs):
         """

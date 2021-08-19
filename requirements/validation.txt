@@ -94,6 +94,7 @@ django==2.2.24
     #   django-model-utils
     #   djangorestframework
     #   drf-jwt
+    #   drf-nested-routers
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-auth-backends
@@ -137,6 +138,7 @@ djangorestframework==3.12.4
     #   -r requirements/quality.txt
     #   -r requirements/test.txt
     #   drf-jwt
+    #   drf-nested-routers
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
@@ -150,6 +152,10 @@ drf-jwt==1.19.0
     #   -r requirements/quality.txt
     #   -r requirements/test.txt
     #   edx-drf-extensions
+drf-nested-routers==0.93.3
+    # via
+    #   -r requirements/quality.txt
+    #   -r requirements/test.txt
 drf-yasg==1.20.0
     # via
     #   -r requirements/quality.txt
@@ -459,7 +465,7 @@ rfc3986==1.5.0
     # via
     #   -r requirements/quality.txt
     #   twine
-ruamel.yaml==0.17.10
+ruamel.yaml==0.17.11
     # via
     #   -r requirements/quality.txt
     #   -r requirements/test.txt
@@ -524,7 +530,7 @@ sqlparse==0.4.1
     #   -r requirements/quality.txt
     #   -r requirements/test.txt
     #   django
-stevedore==3.3.0
+stevedore==3.4.0
     # via
     #   -r requirements/quality.txt
     #   -r requirements/test.txt

@@ -68,12 +68,12 @@ class ClassroomEnrollement(TimeStampedModel):
         app_label = "classroom"
         ordering = ["created"]
 
+    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+
     classroom_instance = models.ForeignKey(
         Classroom,
         blank=True,
         null=True,
-        related_name="classroom",
-        related_query_name="classroom",
         on_delete=models.deletion.CASCADE,
         help_text=_("The classroom to which this enrollment is attached"),
     )
