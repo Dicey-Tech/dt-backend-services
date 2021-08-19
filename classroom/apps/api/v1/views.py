@@ -118,7 +118,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Response(
             {
                 **classroom_data.data,
-                "teacher_enrollment": enrollment_serializer.data["classroom_instance"],
+                "enrollment_pk": enrollment_serializer.data["pk"],
             },
             status=status.HTTP_201_CREATED,
         )
@@ -190,7 +190,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     Viewset for operations on classroom enrollments
 
     Example requests:
-    GET api/v1/
+    GET api/v1/<pk>/
     """
 
     authentication_classes = [JwtAuthentication]
@@ -200,24 +200,24 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     lookup_url_kwargs = ("classroom_instance", "user_id")
     filterset_fields = ("classroom_instance", "user_id")
 
-    queryset = ClassroomEnrollement.objects.all().select_related("classroom")
+    queryset = ClassroomEnrollement.objects.all().select_related("classroom_instance")
     serializer_class = ClassroomEnrollementSerializer
 
-    def get_object(self):
-        """Search by classroom UUID and user"""
+    # def get_object(self):
+    #     """Search by classroom UUID and user"""
 
-        logger.debug("get_object")
-        queryset = self.filter_queryset(self.get_queryset())
-        filter_kwargs = {
-            key: self.kwargs[value]
-            for key, value in zip(self.lookup_fields, self.lookup_url_kwargs)
-        }
-        obj = get_object_or_404(queryset, **filter_kwargs)
+    #     logger.debug("get_object")
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     filter_kwargs = {
+    #         key: self.kwargs[value]
+    #         for key, value in zip(self.lookup_fields, self.lookup_url_kwargs)
+    #     }
+    #     obj = get_object_or_404(queryset, **filter_kwargs)
 
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
+    #     # May raise a permission denied
+    #     self.check_object_permissions(self.request, obj)
 
-        return obj
+    #     return obj
 
     def create(self, request, *args, **kwargs):
         """
@@ -239,11 +239,3 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
             data=enrollment_data,
             status=status.HTTP_201_CREATED,
         )
-
-    def retrieve(self, request, classroom_instance=None, user_id=None):
-        logger.debug("retrieve")
-        pass
-
-    def destroy(self, request, *args, **kwargs):
-        logger.debug("DELETE")
-        return super().destroy(request, *args, **kwargs)

@@ -6,11 +6,11 @@ from classroom.apps.api.v1 import views
 app_name = "v1"
 
 router = DefaultRouter()
-router.register(r"classrooms", views.ClassroomsViewSet, basename="classrooms")
+router.register(r"classrooms", views.ClassroomsViewSet, basename="classroom")
 router.register(
     r"classroom-enrollments",
     views.ClassroomEnrollmentViewSet,
-    basename="classroom-enrollments",
+    basename="enrollments",
 )
 
 urlpatterns = []

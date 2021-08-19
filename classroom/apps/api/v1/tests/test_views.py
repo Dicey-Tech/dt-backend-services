@@ -93,9 +93,9 @@ class ClassroomsViewSetTests(APITestCase):
 
         self.client.login(username=self.teacher_1, password=USER_PASSWORD)
 
-        self.classroom_list_url = reverse("api:v1:classrooms-list")
+        self.classroom_list_url = reverse("api:v1:classroom-list")
         self.classroom_detail_url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": self.classroom_1.uuid}
+            "api:v1:classroom-detail", kwargs={"uuid": self.classroom_1.uuid}
         )
 
     def test_unauthenticated_user_401(self):
@@ -186,7 +186,7 @@ class ClassroomsViewSetTests(APITestCase):
             response = json.loads(response.content)
 
             self.assertIsNotNone(response.get("uuid"))
-            self.assertEqual(response.get("uuid"), response.get("teacher_enrollment"))
+            self.assertIsNotNone(response.get("enrollment_pk"))
 
     @ddt.data(
         {
@@ -229,11 +229,7 @@ class ClassroomsViewSetTests(APITestCase):
             "active": request_data.get("active"),
         }
 
-        url = reverse(
-            "api:v1:classrooms-detail", kwargs={"uuid": str(self.classroom_1.uuid)}
-        )
-
-        response = self.client.put(url, data)
+        response = self.client.put(self.classroom_detail_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNot(request_data.get("school"), self.classroom_1.school)
 
@@ -278,7 +274,7 @@ class ClassroomsViewSetTests(APITestCase):
         )
 
         url = reverse(
-            "api:v1:classrooms-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
+            "api:v1:classroom-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
         )
         logger.debug(url)
 
@@ -286,3 +282,101 @@ class ClassroomsViewSetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+
+
+@ddt.ddt
+class ClassroomEnrollmentViewSetTests(APITestCase):
+    """
+    Tests for the ClassroomEnrollmentViewSet
+    """
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.teacher_1 = UserFactory()
+        self.student_1 = UserFactory()
+
+        self.classroom_1 = ClassroomFactory.create(school=FAKE_UUIDS[0])
+        self.classroom_2 = ClassroomFactory.create(school=FAKE_UUIDS[0])
+
+        self.enrollment_1 = ClassroomEnrollmentFactory.create(
+            classroom_instance=self.classroom_1, user_id=self.teacher_1.id
+        )
+        self.enrollment_2 = ClassroomEnrollmentFactory.create(
+            classroom_instance=self.classroom_2, user_id=self.teacher_1.id
+        )
+
+        self.client.login(username=self.teacher_1, password=USER_PASSWORD)
+
+        # init a JWT cookie (so the user is authenticated) with admin role
+        init_jwt_cookie(
+            self.client,
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
+        )
+
+        self.enrollment_list_url = reverse("api:v1:enrollments-list")
+        self.classroom_enrollments_url = reverse(
+            "api:v1:classroom-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
+        )
+
+    def _create_student_enrollment(self):
+        request_data = {
+            "classroom_uuid": str(self.classroom_1.uuid),
+            "user_id": self.student_1.id,
+        }
+
+        response = self.client.post(
+            self.enrollment_list_url,
+            data=json.dumps(request_data),
+            content_type="application/json",
+        )
+
+        return response
+
+    # TODO test with bad request_data
+    def test_create_single_enrollment(self):
+        """Test POST endpoints creates a classroom enrollment"""
+
+        response = self._create_student_enrollment()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_single_enrollment(self):
+        """Test GET for a single enrollment"""
+
+        response = self._create_student_enrollment()
+
+        response = self.client.get(self.classroom_enrollments_url)
+
+        url = reverse(
+            "api:v1:enrollments-detail",
+            kwargs={"pk": response.data[0]["pk"]},
+        )
+        logger.debug(url)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_single_enrollment(self):
+        """Test DELETE"""
+        self._create_student_enrollment()
+        response = self.client.get(self.classroom_enrollments_url)
+
+        self.assertEqual(len(response.data), 2)
+
+        url = reverse(
+            "api:v1:enrollments-detail",
+            kwargs={"pk": response.data[0]["pk"]},
+        )
+        logger.debug(url)
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(self.classroom_enrollments_url)
+
+        self.assertEqual(len(response.data), 1)
+
+    # TODO What if there is only 1 enrollment left in the classroom?
+    # def test_delete_last_enrollment(self):
