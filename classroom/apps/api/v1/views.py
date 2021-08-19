@@ -3,7 +3,7 @@ Views for classroom end points.
 """
 
 import logging
-import json
+import re
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404
 
 from edx_rbac.mixins import PermissionRequiredForListingMixin
 
+from classroom.apps.core.models import User
 from classroom.apps.api.serializers import (
     ClassroomSerializer,
     ClassroomEnrollementSerializer,
@@ -36,6 +37,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         - create a classroom via the POST endpoint (POST .../)
         - update a classroom via the PUT endpoint (PUT .../<uuid>)
         - retrieve classroom enrollments (GET .../<uuid>/enrollments)
+        - enroll users in the classroom (POST .../<uuid>/enroll
     """
 
     authentication_classes = [JwtAuthentication]
@@ -50,6 +52,22 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
     list_lookup_field = "school"
     allowed_roles = [constants.CLASSROOM_TEACHER_ROLE]
     role_assignment_class = ClassroomRoleAssignment
+
+    def _split_input_list(self, str_list):
+        """
+        Separate out individual student email from the comma, or space separated string.
+        e.g.
+        in: "Lorem@ipsum.dolor, sit@amet.consectetur\nadipiscing@elit.Aenean\r convallis@at.lacus\r, ut@lacinia.Sed"
+        out: ['Lorem@ipsum.dolor', 'sit@amet.consectetur', 'adipiscing@elit.Aenean', 'convallis@at.lacus', 'ut@lacinia.Sed']
+        `str_list` is a string coming from an input text area
+        returns a list of separated values
+        """
+
+        new_list = re.split(r"[\n\r\s,]", str_list)
+        new_list = [s.strip() for s in new_list]
+        new_list = [s for s in new_list if s != ""]
+
+        return new_list
 
     @property
     def base_queryset(self):
@@ -101,14 +119,14 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     def create(self, request, *args, **kwargs):
         """
-        Creating a classroom also trigger an classroom enrollment for the teacher
+        Creating a classroom also triggers the creation of an enrollment for the teacher
         """
-        classroom_data = self.serializer_class(data=request.data)
-        classroom_data.is_valid(raise_exception=True)
-        classroom_data.save()
+        classroom_serializer = self.serializer_class(data=request.data)
+        classroom_serializer.is_valid(raise_exception=True)
+        classroom_serializer.save()
 
         enrollment_data = {
-            "classroom_instance": classroom_data.data["uuid"],
+            "classroom_instance": classroom_serializer.data["uuid"],
             "user_id": request.user.id,
         }
 
@@ -118,7 +136,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         return Response(
             {
-                **classroom_data.data,
+                **classroom_serializer.data,
                 "enrollment_pk": enrollment_serializer.data["pk"],
             },
             status=status.HTTP_201_CREATED,
@@ -145,21 +163,21 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
             "active": request.data.get("active", classroom.active),
         }
 
-        classroom_data = self.serializer_class(instance=classroom, data=data)
-        classroom_data.is_valid(raise_exception=True)
-        classroom_data.save()
-        return Response(classroom_data.data, status=status.HTTP_200_OK)
+        serializer = self.serializer_class(instance=classroom, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         """
-        We disable DELETE because all classromms should be kept and deactivated to be
+        Disable DELETE because all classromms should be kept and deactivated to be
         archived.
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def partial_update(self, request, *args, **kwargs):
         """
-        We disable PATCH because all classroom modifications should done with the UPDATE
+        Disable PATCH because all classroom modifications should done with the UPDATE
         endpoint.
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -185,13 +203,37 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["post"])
+    def enroll(self, request, uuid):
+        """Create enrollment(s) for one or more users"""
+
+        identifiers_raw = request.data.get("identifiers")
+        identifiers = self._split_input_list(identifiers_raw)
+        for identifier in identifiers:
+            user_id = User.objects.get(email=identifier).id
+
+            enrollment_data = {
+                "classroom_instance": uuid,
+                "user_id": user_id,
+            }
+
+            enrollment_serializer = self.enrollment_serializer_class(
+                data=enrollment_data
+            )
+            enrollment_serializer.is_valid(raise_exception=True)
+            enrollment_serializer.save()
+
+        logger.debug(f"identifiers: {identifiers}")
+
+        return Response(status=status.HTTP_201_CREATED)
+
 
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     """
-    Viewset for operations on classroom enrollments
-
-    Example requests:
-    GET api/v1/<pk>/
+    Viewset for operations on classroom
+    Enrollment view to:
+        - retrieve single enrollment (GET .../<pk>)
+        - create one or multiple enrollments via the POST endpoint (POST .../)
     """
 
     authentication_classes = [JwtAuthentication]
@@ -203,22 +245,6 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
 
     queryset = ClassroomEnrollement.objects.all().select_related("classroom_instance")
     serializer_class = ClassroomEnrollementSerializer
-
-    # def get_object(self):
-    #     """Search by classroom UUID and user"""
-
-    #     logger.debug("get_object")
-    #     queryset = self.filter_queryset(self.get_queryset())
-    #     filter_kwargs = {
-    #         key: self.kwargs[value]
-    #         for key, value in zip(self.lookup_fields, self.lookup_url_kwargs)
-    #     }
-    #     obj = get_object_or_404(queryset, **filter_kwargs)
-
-    #     # May raise a permission denied
-    #     self.check_object_permissions(self.request, obj)
-
-    #     return obj
 
     def create(self, request, *args, **kwargs):
         """
@@ -240,3 +266,21 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
             data=enrollment_data,
             status=status.HTTP_201_CREATED,
         )
+
+    def list(self, request, *args, **kwargs):
+        """
+        Disable GET for a list of enrollments, use classroom/<uuid>/enrollments instead.
+        """
+        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        """
+        Disable UPDATE because enrollments cannot be amended.
+        """
+        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Disable PATCH because enrollments cannot be amended.
+        """
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

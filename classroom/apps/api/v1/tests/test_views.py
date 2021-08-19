@@ -4,6 +4,7 @@ Classroom API Test Cases
 
 import logging
 import json
+from os import stat
 from uuid import uuid4
 import ddt
 
@@ -96,6 +97,12 @@ class ClassroomsViewSetTests(APITestCase):
         self.classroom_list_url = reverse("api:v1:classroom-list")
         self.classroom_detail_url = reverse(
             "api:v1:classroom-detail", kwargs={"uuid": self.classroom_1.uuid}
+        )
+        self.classroom_enrollments_list_url = reverse(
+            "api:v1:classroom-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
+        )
+        self.classroom_enroll_url = reverse(
+            "api:v1:classroom-enroll", kwargs={"uuid": str(self.classroom_1.uuid)}
         )
 
     def test_unauthenticated_user_401(self):
@@ -264,7 +271,7 @@ class ClassroomsViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_get_all_enrollments_in_classroom(self):
-        """Test"""
+        """Test get a list of enrollments in a classroom"""
 
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
@@ -273,15 +280,36 @@ class ClassroomsViewSetTests(APITestCase):
             [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
-        url = reverse(
-            "api:v1:classroom-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
-        )
-        logger.debug(url)
-
-        response = self.client.get(url)
+        response = self.client.get(self.classroom_enrollments_list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+
+    def test_enroll_users_in_classroom(self):
+        """Test to enroll one or multiple users in a classroom"""
+
+        # init a JWT cookie (so the user is authenticated) with admin role
+        init_jwt_cookie(
+            self.client,
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
+        )
+
+        before = self.client.get(self.classroom_enrollments_list_url).data
+
+        student_1 = UserFactory()
+        student_2 = UserFactory()
+        identifiers = student_1.email + "\n" + student_2.email
+
+        data = {"identifiers": identifiers}
+
+        response = self.client.post(self.classroom_enroll_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        after = self.client.get(self.classroom_enrollments_list_url).data
+
+        self.assertGreater(len(after), len(before))
+        # self.assertIsNotNone(response.data.get("enrolled"))
 
 
 @ddt.ddt
