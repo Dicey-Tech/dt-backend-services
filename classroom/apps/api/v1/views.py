@@ -35,6 +35,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         - retrieve single classroom (GET .../<uuid>)
         - create a classroom via the POST endpoint (POST .../)
         - update a classroom via the PUT endpoint (PUT .../<uuid>)
+        - retrieve classroom enrollments (GET .../<uuid>/enrollments)
     """
 
     authentication_classes = [JwtAuthentication]

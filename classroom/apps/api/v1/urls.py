@@ -6,9 +6,9 @@ from classroom.apps.api.v1 import views
 app_name = "v1"
 
 router = DefaultRouter()
-router.register(r"classrooms", views.ClassroomsViewSet, basename="classroom")
+router.register(r"classroom", views.ClassroomsViewSet, basename="classroom")
 router.register(
-    r"classroom-enrollments",
+    r"enrollments",
     views.ClassroomEnrollmentViewSet,
     basename="enrollments",
 )
