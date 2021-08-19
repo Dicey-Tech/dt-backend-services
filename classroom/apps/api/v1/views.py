@@ -4,6 +4,7 @@ Views for classroom end points.
 
 import logging
 import re
+import uuid
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
@@ -13,6 +14,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from edx_rbac.mixins import PermissionRequiredForListingMixin
+from classroom.apps import classroom
 
 from classroom.apps.core.models import User
 from classroom.apps.api.serializers import (
@@ -194,17 +196,6 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         """
         return self.requested_school_uuid
 
-    @action(detail=True, methods=["get"])
-    def enrollments(self, request, uuid):
-        """Returns a list of enrollments for a classroom"""
-        queryset = ClassroomEnrollement.objects.filter(
-            classroom_instance__uuid=uuid, active=True
-        )
-
-        serializer = self.enrollment_serializer_class(queryset, many=True)
-
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=True, methods=["post"])
     def enroll(self, request, classroom_uuid):
         """Create enrollment(s) for one or more users"""
@@ -242,25 +233,43 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     Viewset for operations on individual enrollments in a given classroom.
     """
 
-    # authentication_classes = [JwtAuthentication]
+    authentication_classes = [JwtAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    lookup_field = "uuid"
+    lookup_fields = "uuid"
     lookup_url_kwarg = "enrollment_uuid"
-    # filterset_fields = ("classroom_instance", "user_id")
 
-    queryset = ClassroomEnrollement.objects.all().select_related("classroom_instance")
     serializer_class = ClassroomEnrollementSerializer
+
+    def _get_classroom(self):
+        """
+        Helper that returns the classroom specified by `classroom_uuid` in the request.
+        """
+        classroom_uuid = self.kwargs.get("classroom_uuid")
+
+        if not classroom_uuid:
+            return None
+
+        try:
+            return Classroom.objects.get(uuid=classroom_uuid)
+        except Classroom.DoesNotExist:
+            return None
+
+    def get_queryset(self):
+        queryset = ClassroomEnrollement.objects.filter(
+            classroom_instance=self._get_classroom()
+        )
+
+        return queryset
 
     def create(self, request, *args, **kwargs):
         """
         Create a classroom enrollment
         Parameters:
-            - classroom_instance: UUID to the Classroom the enrollment is linked to
             - user_id: ID of the user enrolled in the Classroom
         """
         enrollment_data = {
-            "classroom_instance": request.data.get("classroom_uuid"),
+            "classroom_instance": self._get_classroom().uuid,
             "user_id": self.request.data.get("user_id"),
         }
 
@@ -269,9 +278,20 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
         enrollment.save()
 
         return Response(
-            data=enrollment_data,
+            data=enrollment.data,
             status=status.HTTP_201_CREATED,
         )
+
+    # def retrieve(self, request, user_id):
+
+    #     enrollment_data = {
+    #         "classroom_instance": self._get_classroom().uuid,
+    #         "user_id": user_id,
+    #     }
+
+    #     serializer = self.serializer_class(data=enrollment_data)
+
+    #     return serializer
 
     def update(self, request, *args, **kwargs):
         """

@@ -74,6 +74,8 @@ class ClassroomEnrollement(TimeStampedModel):
         Classroom,
         blank=True,
         null=True,
+        related_name="classrooms",
+        related_query_name="classroom",
         on_delete=models.deletion.CASCADE,
         help_text=_("The classroom to which this enrollment is attached"),
     )

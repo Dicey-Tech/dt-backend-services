@@ -27,7 +27,7 @@ class ClassroomEnrollementSerializer(serializers.ModelSerializer):
         """Convert `username` to lowercase."""
 
         ret = {
-            "enrollment_uuid": instance.uuid,
+            "enrollment_uuid": str(instance.uuid),
             "user_id": instance.user_id,
         }
 

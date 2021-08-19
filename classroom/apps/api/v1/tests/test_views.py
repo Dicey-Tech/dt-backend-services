@@ -342,7 +342,6 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
 
     def _create_student_enrollment(self):
         request_data = {
-            "classroom_uuid": str(self.classroom_1.uuid),
             "user_id": self.student_1.id,
         }
 
@@ -367,7 +366,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         response = self.client.get(self.enrollments_list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data.get("count"), 1)
 
     # TODO test with bad request_data
     def test_create_single_enrollment(self):
@@ -377,41 +376,56 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_get_single_enrollment(self):
+        response = self.client.get(self.enrollments_list_url)
+        self.assertEqual(response.data.get("count"), 2)
+
+    @ddt.data(0, 1)
+    def test_get_single_enrollment(self, user):
         """Test GET for a single enrollment"""
 
-        response = self._create_student_enrollment()
+        self._create_student_enrollment()
 
-        response = self.client.get(self.classroom_enrollments_url)
+        list_response = self.client.get(self.enrollments_list_url)
 
         url = reverse(
             "api:v1:enrollments-detail",
-            kwargs={"pk": response.data[0]["pk"]},
+            kwargs={
+                "classroom_uuid": self.classroom_1.uuid,
+                "enrollment_uuid": str(
+                    list_response.data["results"][user]["enrollment_uuid"]
+                ),
+            },
         )
-        logger.debug(url)
-        response = self.client.get(url)
 
+        response = self.client.get(url)
+        logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data.get("user_id"), list_response.data["results"][user]["user_id"]
+        )
 
     def test_delete_single_enrollment(self):
         """Test DELETE"""
         self._create_student_enrollment()
-        response = self.client.get(self.classroom_enrollments_url)
+        response = self.client.get(self.enrollments_list_url)
 
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data.get("count"), 2)
 
         url = reverse(
             "api:v1:enrollments-detail",
-            kwargs={"pk": response.data[0]["pk"]},
+            kwargs={
+                "classroom_uuid": self.classroom_1.uuid,
+                "enrollment_uuid": str(response.data["results"][1]["enrollment_uuid"]),
+            },
         )
         logger.debug(url)
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        response = self.client.get(self.classroom_enrollments_url)
+        response = self.client.get(self.enrollments_list_url)
 
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data.get("count"), 1)
 
     # TODO What if there is only 1 enrollment left in the classroom?
     # def test_delete_last_enrollment(self):
