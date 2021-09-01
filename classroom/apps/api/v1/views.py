@@ -14,7 +14,6 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from edx_rbac.mixins import PermissionRequiredForListingMixin
-from classroom.apps import classroom
 
 from classroom.apps.core.models import User
 from classroom.apps.api.serializers import (
@@ -141,7 +140,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Response(
             {
                 **classroom_serializer.data,
-                "enrollment_uuid": enrollment_serializer.data["enrollment_uuid"],
+                "classroom_uuid": enrollment_serializer.data["classroom_uuid"],
             },
             status=status.HTTP_201_CREATED,
         )
@@ -236,8 +235,9 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     authentication_classes = [JwtAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    lookup_fields = "uuid"
-    lookup_url_kwarg = "enrollment_uuid"
+    lookup_fields = "classroom_uuid"
+    lookup_url_kwarg = "user_id"
+    lookup_field = "user_id"
 
     serializer_class = ClassroomEnrollementSerializer
 

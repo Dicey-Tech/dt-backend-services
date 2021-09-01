@@ -24,10 +24,13 @@ class ClassroomEnrollementSerializer(serializers.ModelSerializer):
         fields = ["classroom_instance", "user_id", "active"]
 
     def to_representation(self, instance):
-        """Convert `username` to lowercase."""
+        """
+        Return a formatted representation of the
+        classroom enrollment
+        """
 
         ret = {
-            "enrollment_uuid": str(instance.uuid),
+            "classroom_uuid": str(instance.classroom_instance.uuid),
             "user_id": instance.user_id,
         }
 

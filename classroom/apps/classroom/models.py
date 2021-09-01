@@ -68,8 +68,6 @@ class ClassroomEnrollement(TimeStampedModel):
         app_label = "classroom"
         ordering = ["created"]
 
-    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-
     classroom_instance = models.ForeignKey(
         Classroom,
         blank=True,

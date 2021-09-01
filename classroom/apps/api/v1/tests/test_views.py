@@ -177,6 +177,7 @@ class ClassroomsViewSetTests(APITestCase):
         """
         Test POST classroom creates a classroom with the user as a teacher.
         """
+        # TODO Classroom should not require explicit school UUID
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
             self.client,
@@ -197,7 +198,7 @@ class ClassroomsViewSetTests(APITestCase):
             response = json.loads(response.content)
 
             self.assertIsNotNone(response.get("uuid"))
-            self.assertIsNotNone(response.get("enrollment_uuid"))
+            self.assertIsNotNone(response.get("classroom_uuid"))
 
     @ddt.data(
         {
@@ -341,6 +342,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         # )
 
     def _create_student_enrollment(self):
+        """Create a student enrollment in classroom_1"""
         request_data = {
             "user_id": self.student_1.id,
         }
@@ -379,30 +381,28 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         response = self.client.get(self.enrollments_list_url)
         self.assertEqual(response.data.get("count"), 2)
 
-    @ddt.data(0, 1)
+    @ddt.data(1, 2)
     def test_get_single_enrollment(self, user):
         """Test GET for a single enrollment"""
 
         self._create_student_enrollment()
 
         list_response = self.client.get(self.enrollments_list_url)
+        logger.debug(list_response.data)
 
         url = reverse(
             "api:v1:enrollments-detail",
             kwargs={
-                "classroom_uuid": self.classroom_1.uuid,
-                "enrollment_uuid": str(
-                    list_response.data["results"][user]["enrollment_uuid"]
-                ),
+                "classroom_uuid": str(self.classroom_1.uuid),
+                "user_id": user,
             },
         )
+        logger.debug(url)
 
         response = self.client.get(url)
         logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response.data.get("user_id"), list_response.data["results"][user]["user_id"]
-        )
+        self.assertEqual(user, list_response.data["results"][user - 1]["user_id"])
 
     def test_delete_single_enrollment(self):
         """Test DELETE"""
@@ -415,7 +415,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             "api:v1:enrollments-detail",
             kwargs={
                 "classroom_uuid": self.classroom_1.uuid,
-                "enrollment_uuid": str(response.data["results"][1]["enrollment_uuid"]),
+                "user_id": self.student_1.id,
             },
         )
         logger.debug(url)
