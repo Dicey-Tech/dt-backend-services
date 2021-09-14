@@ -96,7 +96,7 @@ edx-auth-backends==3.4.0
     # via -r requirements/base.txt
 edx-django-release-util==1.1.0
     # via -r requirements/base.txt
-edx-django-utils==4.2.0
+edx-django-utils==4.4.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -146,7 +146,7 @@ mysqlclient==2.0.3
     # via
     #   -r requirements/base.txt
     #   -r requirements/production.in
-newrelic==6.8.0.163
+newrelic==6.8.1.164
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -231,7 +231,7 @@ rest-condition==1.0.3
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-ruamel.yaml==0.17.11
+ruamel.yaml==0.17.16
     # via
     #   -r requirements/base.txt
     #   drf-yasg

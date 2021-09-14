@@ -35,7 +35,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-ENV DJANGO_SETTINGS_MODULE classroom.settings.local
+ENV DJANGO_SETTINGS_MODULE classrooms.settings.local
 
 EXPOSE 8180
 RUN useradd -m --shell /bin/false app
@@ -56,7 +56,7 @@ RUN mkdir -p /edx/var/log
 USER app
 
 # Gunicorn 19 does not log to stdout or stderr by default. Once we are past gunicorn 19, the logging to STDOUT need not be specified.
-CMD gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker_gunicorn_configuration.py --log-file - --max-requests=1000 classroom.wsgi:application
+CMD gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker_gunicorn_configuration.py --log-file - --max-requests=1000 classrooms.wsgi:application
 
 # This line is after the requirements so that changes to the code will not
 # bust the image cache
@@ -64,4 +64,4 @@ COPY . /edx/app/classroom
 
 #FROM app as newrelic
 #RUN pip install newrelic
-#CMD newrelic-admin run-program gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker_gunicorn_configuration.py --log-file - --max-requests=1000 classroom.wsgi:application
+#CMD newrelic-admin run-program gunicorn --workers=2 --name classroom -c /edx/app/classroom/classroom/docker_gunicorn_configuration.py --log-file - --max-requests=1000 classrooms.wsgi:application
