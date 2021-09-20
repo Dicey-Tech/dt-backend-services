@@ -4,10 +4,11 @@ Classroom API Test Cases
 
 import logging
 import json
-from os import stat
 from uuid import uuid4
-import ddt
+from datetime import date
+from unittest import mock
 
+import ddt
 from django.urls import reverse
 
 from rest_framework import status
@@ -20,7 +21,8 @@ from edx_rest_framework_extensions.auth.jwt.tests.utils import (
 )
 
 from classrooms.apps.classrooms import constants
-from classrooms.apps.api.tests.factories import (
+from test_utils.factories import (
+    CourseAssignmentFactory,
     UserFactory,
     ClassroomFactory,
     ClassroomEnrollmentFactory,
@@ -178,11 +180,12 @@ class ClassroomsViewSetTests(APITestCase):
             data=json.dumps(
                 {
                     "name": "Jedis",
+                    "school": FAKE_UUIDS[0],
                 }
             ),
             content_type="application/json",
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response = json.loads(response.content)
 
@@ -347,13 +350,6 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
     def test_get_all_enrollments_in_classroom(self):
         """Test get a list of enrollments in a classroom"""
 
-        # init a JWT cookie (so the user is authenticated) with admin role
-        init_jwt_cookie(
-            self.client,
-            self.teacher_1,
-            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
-        )
-
         response = self.client.get(self.enrollments_list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -416,5 +412,68 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
 
         self.assertEqual(response.data.get("count"), 1)
 
+    # TODO test bulk enrollments
     # TODO What if there is only 1 enrollment left in the classroom?
     # def test_delete_last_enrollment(self):
+
+
+@ddt.ddt
+class CourseAssignmentViewsetTests(APITestCase):
+    """
+    Tests for the CourseAssignmentViewset
+    """
+
+    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    def setUp(self, mock_oauth_client) -> None:
+
+        self.teacher_1 = UserFactory()
+
+        self.course_ids = [
+            "DiceyTech+BOX001+TEMPLATE",
+            "DiceyTech+EXP001+TEMPLATE",
+        ]
+
+        self.classroom = ClassroomFactory.create(school=FAKE_UUIDS[0])
+
+        self.expected_course_run = (
+            self.classroom.name.replace(" ", "")
+            + "_"
+            + date.today().strftime(constants.DATE_FORMAT)
+        )
+
+        self.expected_course_id = self.course_ids[0].replace(
+            "TEMPLATE", self.expected_course_run
+        )
+
+        mock_oauth_client.return_value.post.return_value = {
+            "results": [{"key": f"course-v1:{self.expected_course_id}"}]
+        }
+
+        self.course_assignment = CourseAssignmentFactory.create(
+            course_id=self.course_ids[0], classroom_instance=self.classroom
+        )
+
+        self.client.login(username=self.teacher_1, password=USER_PASSWORD)
+
+        # init a JWT cookie (so the user is authenticated) with admin role
+        init_jwt_cookie(
+            self.client,
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom.school))],
+        )
+
+        self.assignment_list_url = reverse(
+            "api:v1:assignments-list",
+            kwargs={"classroom_uuid": str(self.classroom.uuid)},
+        )
+        logger.info(self.assignment_list_url)
+
+        super().setUp()
+
+    def test_get_all_assignments_in_classroom(self):
+        """Test get a list of assignments in a classroom"""
+
+        response = self.client.get(self.assignment_list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 1)

@@ -2,6 +2,7 @@
 Database models for classroom.
 """
 from uuid import uuid4
+from datetime import date, datetime, timedelta
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -11,6 +12,9 @@ from edx_rbac.utils import ALL_ACCESS_CONTEXT
 
 from model_utils.models import TimeStampedModel
 
+from classrooms.apps.api_client.discovery import DiscoveryApiClient
+from classrooms.apps.classrooms.constants import DATE_FORMAT, DATETIME_FORMAT
+
 
 class Classroom(TimeStampedModel):
     """
@@ -19,9 +23,9 @@ class Classroom(TimeStampedModel):
 
     Fields:
         uuid (UUIDField, PRIMARY KEY): Classroom Instance identification code.
-        school
-        name
-        active
+        school (UUIDField): Enterprise identification code.
+        name (CharField): Display name of the Classroom.
+        active (BooleanField):
     """
 
     class Meta:
@@ -53,14 +57,14 @@ class Classroom(TimeStampedModel):
         return self.__str__()
 
 
-class ClassroomEnrollement(TimeStampedModel):
+class ClassroomEnrollment(TimeStampedModel):
     """
     Store infromation about the enrollment of a user in a classroom.
 
     Fields:
-        classroom_id (UUIDField, PRIMARY KEY): Classroom Instance identification code.
-        user_id
-        active
+        classroom_instance (ForeignKey): Classroom Instance identification code.
+        user_id (PositiveIntegerField)
+        active (BooleanField)
     """
 
     class Meta:
@@ -97,29 +101,80 @@ class ClassroomEnrollement(TimeStampedModel):
         return self.__str__()
 
 
-# class CourseAssignment(TimeStampedModel):
-#     """
-#     CourseAssignment links courses with a specific classroom
-#     """
+class CourseAssignment(TimeStampedModel):
+    """
+    CourseAssignment links courses with a specific classroom.
 
-#     class Meta:
-#         unique_together = (("classroom_instance", "course_id"),)
-#         app_label = "classroom"
-#         ordering = ["created"]
+    Fields:
+        course_id (CharField):
+        classroom_instance (ForeignKey):
 
-#     course_id = models.CharField(
-#         max_length=255,
-#         blank=False,
-#         help_text=_("Unique identifier for the course"),
-#     )
+    """
 
-#     classroom_instance = models.ForeignKey(
-#         Classroom,
-#         blank=True,
-#         null=True,
-#         on_delete=models.deletion.CASCADE,
-#         help_text=_("The classroom to which this assignment is attached"),
-#     )
+    class Meta:
+        unique_together = (("classroom_instance", "course_id"),)
+        app_label = "classrooms"
+        ordering = ["created"]
+
+    course_id = models.CharField(
+        max_length=255,
+        blank=False,
+        help_text=_("Unique identifier for the course"),
+    )
+
+    classroom_instance = models.ForeignKey(
+        Classroom,
+        blank=True,
+        null=True,
+        on_delete=models.deletion.CASCADE,
+        help_text=_("The classroom to which this assignment is attached"),
+    )
+
+    def __str__(self) -> str:
+        """
+        Return a human-readable string representation.
+        """
+        return f"<CourseAssignment for course {self.course_id} in classroom with ID {self.classroom_instance.uuid}>"
+
+    def __repr__(self):
+        """
+        Return string representation of the enrollment.
+        """
+        return self.__str__()
+
+    def save(self, *args, **kwargs):
+        """
+        Create a new course run from the course ID selected and assign the new course to the
+        classroom.
+        """
+
+        course_run = (
+            self.classroom_instance.name.replace(" ", "")
+            + "_"
+            + date.today().strftime(DATE_FORMAT)
+        )
+
+        # Create a course run using the discovery API DiceyTech+DT002
+        course_key = self.course_id.replace("+TEMPLATE", "")
+        start = datetime.today()
+        end = start + timedelta(days=90)
+
+        course_data = {
+            "start": start.strftime(DATETIME_FORMAT),
+            "end": end.strftime(DATETIME_FORMAT),
+            "pacing_type": "self_paced",
+            "run_type": "1cfaba8e-16c2-4342-addd-4937b38c05ce",
+            "status": "published",
+            "course": course_key,
+            "term": course_run,
+        }
+
+        client = DiscoveryApiClient()
+        response = client.create_course_run(course_data)
+
+        self.course_id = self.course_id.replace("TEMPLATE", course_run)
+
+        super().save(*args, **kwargs)
 
 
 class ClassroomFeatureRole(UserRole):

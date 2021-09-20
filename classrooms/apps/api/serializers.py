@@ -2,9 +2,14 @@
 Serializers for REST API endpoints
 """
 
+from re import L
 from rest_framework import serializers
 
-from classrooms.apps.classrooms.models import Classroom, ClassroomEnrollement
+from classrooms.apps.classrooms.models import (
+    Classroom,
+    ClassroomEnrollment,
+    CourseAssignment,
+)
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -12,15 +17,15 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Classroom
-        fields = ["uuid", "name", "active"]
+        fields = ["uuid", "name", "active", "school"]
         read_only_fields = ["uuid"]
 
 
-class ClassroomEnrollementSerializer(serializers.ModelSerializer):
-    """Serializes the ClassroomEnrollement object"""
+class ClassroomEnrollmentSerializer(serializers.ModelSerializer):
+    """Serializes the ClassroomEnrollment object"""
 
     class Meta:
-        model = ClassroomEnrollement
+        model = ClassroomEnrollment
         fields = ["classroom_instance", "user_id", "active"]
 
     def to_representation(self, instance):
@@ -35,3 +40,11 @@ class ClassroomEnrollementSerializer(serializers.ModelSerializer):
         }
 
         return ret
+
+
+class CourseAssignmentSerializer(serializers.ModelSerializer):
+    """Serialises the CourseAssignment object"""
+
+    class Meta:
+        model = CourseAssignment
+        fields = ["course_id", "classroom_instance"]

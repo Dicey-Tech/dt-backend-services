@@ -68,6 +68,12 @@ classroom_router.register(
     basename="enrollments",
 )
 
+classroom_router.register(
+    r"assignments",
+    views.CourseAssignmentViewset,
+    basename="assignments",
+)
+
 urlpatterns = []
 
 urlpatterns += router.urls

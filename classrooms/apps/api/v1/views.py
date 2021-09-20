@@ -17,12 +17,14 @@ from edx_rbac.mixins import PermissionRequiredForListingMixin
 from classrooms.apps.core.models import User
 from classrooms.apps.api.serializers import (
     ClassroomSerializer,
-    ClassroomEnrollementSerializer,
+    ClassroomEnrollmentSerializer,
+    CourseAssignmentSerializer,
 )
 from classrooms.apps.classrooms.models import (
     Classroom,
-    ClassroomEnrollement,
+    ClassroomEnrollment,
     ClassroomRoleAssignment,
+    CourseAssignment,
 )
 from classrooms.apps.classrooms import constants
 
@@ -47,7 +49,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
     lookup_url_kwarg = "classroom_uuid"
 
     serializer_class = ClassroomSerializer
-    enrollment_serializer_class = ClassroomEnrollementSerializer
+    enrollment_serializer_class = ClassroomEnrollmentSerializer
     permission_required = constants.CLASSROOM_TEACHER_ACCESS_PERMISSION
 
     # fields that control permissions for 'list' actions
@@ -87,7 +89,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         if self.requested_classroom_uuid:
             kwargs.update({"uuid": self.requested_classroom_uuid})
 
-        enrollments = ClassroomEnrollement.objects.filter(user_id=self.request.user.id)
+        enrollments = ClassroomEnrollment.objects.filter(user_id=self.request.user.id)
         classroom_ids = []
 
         for enrollment in enrollments:
@@ -123,13 +125,11 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         """
         Creating a classroom also triggers the creation of an enrollment for the teacher
         """
-        logger.debug("data: " + request.data)
-        classroom_serializer = self.serializer_class(
-            data={**request.data, "school": self.requested_school_uuid}
-        )
+
+        classroom_serializer = self.serializer_class(data=request.data)
         classroom_serializer.is_valid(raise_exception=True)
         classroom_serializer.save()
-        # TODO move enrollment creation to classroom object
+
         enrollment_data = {
             "classroom_instance": classroom_serializer.data["uuid"],
             "user_id": request.user.id,
@@ -226,10 +226,9 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     """
-    Viewset for operations on classroom
-    Enrollment view to:
-        - retrieve single enrollment (GET .../<pk>)
-        - create one or multiple enrollments via the POST endpoint (POST .../)
+    Viewset for operations on classroom enrollments
+        - retrieve single enrollment (GET enrollments/<user_id>)
+        - create one or multiple enrollments via the POST endpoint (POST enrollments/)
 
     Viewset for operations on individual enrollments in a given classroom.
     """
@@ -241,7 +240,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = "user_id"
     lookup_field = "user_id"
 
-    serializer_class = ClassroomEnrollementSerializer
+    serializer_class = ClassroomEnrollmentSerializer
 
     def _get_classroom(self):
         """
@@ -258,7 +257,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
             return None
 
     def get_queryset(self):
-        queryset = ClassroomEnrollement.objects.filter(
+        queryset = ClassroomEnrollment.objects.filter(
             classroom_instance=self._get_classroom()
         )
 
@@ -306,3 +305,39 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
         Disable PATCH because enrollments cannot be amended.
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class CourseAssignmentViewset(viewsets.ModelViewSet):
+    """
+    Viewset for operations on course assignments
+
+    """
+
+    authentication_classes = [JwtAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    lookup_fields = "classroom_uuid"
+    lookup_url_kwarg = "course_id"
+
+    serializer_class = CourseAssignmentSerializer
+
+    def _get_classroom(self):
+        """
+        Helper that returns the classroom specified by `classroom_uuid` in the request.
+        """
+        classroom_uuid = self.kwargs.get("classroom_uuid")
+
+        if not classroom_uuid:
+            return None
+
+        try:
+            return Classroom.objects.get(uuid=classroom_uuid)
+        except Classroom.DoesNotExist:
+            return None
+
+    def get_queryset(self):
+        queryset = CourseAssignment.objects.filter(
+            classroom_instance=self._get_classroom()
+        )
+
+        return queryset

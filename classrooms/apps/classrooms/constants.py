@@ -1,3 +1,6 @@
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+DATE_FORMAT = "%d%m%y"
+
 # Role-based access control
 CLASSROOM_TEACHER_ROLE = "school_classroom_teacher"
 CLASSROOM_LEARNER_ROLE = "school_classroom_learner"

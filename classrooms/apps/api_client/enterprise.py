@@ -53,3 +53,15 @@ class EnterpriseApiClient(BaseOAuthClient):
         learners_data = results if results else {}
 
         return learners_data
+
+    # TODO create enterprise enrollment
+    def create_enterprise_enrollment(self, customer_uuid, username, course_id):
+        """
+
+        Arguments:
+            customer_uuid:
+            username:
+            course_id":
+        /enterprise/api/v1/enterprise-course-enrollment/
+        """
+        pass

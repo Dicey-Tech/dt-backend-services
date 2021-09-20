@@ -5,7 +5,8 @@ from django.contrib import admin
 
 from classrooms.apps.classrooms.models import (
     Classroom,
-    ClassroomEnrollement,
+    ClassroomEnrollment,
+    CourseAssignment,
     ClassroomRoleAssignment,
     ClassroomFeatureRole,
 )
@@ -16,8 +17,13 @@ class ClassroomAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ClassroomEnrollement)
+@admin.register(ClassroomEnrollment)
 class ClassroomEnrollmentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(CourseAssignment)
+class CourseAssignmentAdmin(admin.ModelAdmin):
     pass
 
 
