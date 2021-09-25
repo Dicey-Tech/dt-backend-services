@@ -14,7 +14,6 @@ from django.shortcuts import get_object_or_404
 
 from edx_rbac.mixins import PermissionRequiredForListingMixin
 
-from classrooms.apps.core.models import User
 from classrooms.apps.api.serializers import (
     ClassroomSerializer,
     ClassroomEnrollmentSerializer,
@@ -35,11 +34,11 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
     """
     Classroom view to:
         - list classroom data (GET .../)
-        - retrieve single classroom (GET .../<uuid>)
+        - retrieve single classroom (GET .../uuid)
         - create a classroom via the POST endpoint (POST .../)
         - update a classroom via the PUT endpoint (PUT .../<uuid>)
-        - retrieve classroom enrollments (GET .../<uuid>/enrollments)
-        - enroll users in the classroom (POST .../<uuid>/enroll
+        - retrieve classroom enrollments (GET .../uuid/enrollments)
+        - enroll users in the classroom (POST .../uuid/enroll
     """
 
     authentication_classes = [JwtAuthentication]
@@ -89,7 +88,9 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         if self.requested_classroom_uuid:
             kwargs.update({"uuid": self.requested_classroom_uuid})
 
-        enrollments = ClassroomEnrollment.objects.filter(user_id=self.request.user.id)
+        enrollments = ClassroomEnrollment.objects.filter(
+            user_id=self.request.user.email
+        )
         classroom_ids = []
 
         for enrollment in enrollments:
@@ -132,7 +133,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         enrollment_data = {
             "classroom_instance": classroom_serializer.data["uuid"],
-            "user_id": request.user.id,
+            "user_id": request.user.email,
+            "staff": True,
         }
 
         enrollment_serializer = self.enrollment_serializer_class(data=enrollment_data)
@@ -204,13 +206,10 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         identifiers_raw = request.data.get("identifiers")
         identifiers = self._split_input_list(identifiers_raw)
         for identifier in identifiers:
-            # TODO get the user id from the LMS
             # TODO validate the users are part of the same enterprise
-            user_id = User.objects.get(email=identifier).id
-
             enrollment_data = {
                 "classroom_instance": classroom_uuid,
-                "user_id": user_id,
+                "user_id": identifier,
             }
 
             enrollment_serializer = self.enrollment_serializer_class(
@@ -227,8 +226,10 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     """
     Viewset for operations on classroom enrollments
-        - retrieve single enrollment (GET enrollments/<user_id>)
-        - create one or multiple enrollments via the POST endpoint (POST enrollments/)
+        - List enrollments for the current classroom (GET enrollments/)
+        - retrieve single enrollment (GET enrollments/<id>)
+        - TODO Update
+        - TODO Delete
 
     Viewset for operations on individual enrollments in a given classroom.
     """
@@ -237,8 +238,8 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     lookup_fields = "classroom_uuid"
-    lookup_url_kwarg = "user_id"
-    lookup_field = "user_id"
+    lookup_url_kwarg = "id"
+    # lookup_field = "user_id"
 
     serializer_class = ClassroomEnrollmentSerializer
 

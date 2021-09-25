@@ -56,7 +56,7 @@ class ClassroomEnrollmentFactory(DjangoModelFactory):
 
     classroom_instance = factory.SubFactory(ClassroomFactory)
     user_id = 1
-    active = True
+    staff = False
 
 
 class CourseAssignmentFactory(DjangoModelFactory):

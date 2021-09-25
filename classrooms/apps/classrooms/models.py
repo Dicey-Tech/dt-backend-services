@@ -74,19 +74,21 @@ class ClassroomEnrollment(TimeStampedModel):
 
     classroom_instance = models.ForeignKey(
         Classroom,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
         on_delete=models.deletion.CASCADE,
         help_text=_("The classroom to which this enrollment is attached"),
     )
 
-    user_id = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+    user_id = models.EmailField(
+        blank=False,
+        null=False,
+        max_length=254,
         db_index=True,
+        help_text=_("User identifier"),
     )
 
-    active = models.BooleanField(default=True)
+    staff = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         """
@@ -168,9 +170,9 @@ class CourseAssignment(TimeStampedModel):
             "course": course_key,
             "term": course_run,
         }
-
-        client = DiscoveryApiClient()
-        response = client.create_course_run(course_data)
+        # TODO Keep out until setup in production is ready
+        # client = DiscoveryApiClient()
+        # response = client.create_course_run(course_data)
 
         self.course_id = self.course_id.replace("TEMPLATE", course_run)
 

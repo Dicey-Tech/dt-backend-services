@@ -310,10 +310,14 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         self.classroom_2 = ClassroomFactory.create(school=FAKE_UUIDS[0])
 
         self.enrollment_1 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_1, user_id=self.teacher_1.id
+            classroom_instance=self.classroom_1,
+            user_id=self.teacher_1.email,
+            staff=True,
         )
         self.enrollment_2 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_2, user_id=self.teacher_1.id
+            classroom_instance=self.classroom_2,
+            user_id=self.teacher_1.email,
+            staff=True,
         )
 
         self.client.login(username=self.teacher_1, password=USER_PASSWORD)
@@ -329,6 +333,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             "api:v1:enrollments-list",
             kwargs={"classroom_uuid": str(self.classroom_1.uuid)},
         )
+
         # self.classroom_enrollments_url = reverse(
         #     "api:v1:classroom-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
         # )
@@ -336,7 +341,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
     def _create_student_enrollment(self):
         """Create a student enrollment in classroom_1"""
         request_data = {
-            "user_id": self.student_1.id,
+            "user_id": self.student_1.email,
         }
 
         response = self.client.post(
@@ -353,6 +358,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         response = self.client.get(self.enrollments_list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        logger.debug(response.data.get("results"))
         self.assertEqual(response.data.get("count"), 1)
 
     # TODO test with bad request_data
@@ -366,9 +372,10 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         response = self.client.get(self.enrollments_list_url)
         self.assertEqual(response.data.get("count"), 2)
 
-    @ddt.data(1, 2)
-    def test_get_single_enrollment(self, user):
+    @ddt.data(1, 3)
+    def test_get_single_enrollment(self, pk):
         """Test GET for a single enrollment"""
+        # TODO Yikes
 
         self._create_student_enrollment()
 
@@ -379,7 +386,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             "api:v1:enrollments-detail",
             kwargs={
                 "classroom_uuid": str(self.classroom_1.uuid),
-                "user_id": user,
+                "id": pk,
             },
         )
         logger.debug(url)
@@ -387,7 +394,9 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         response = self.client.get(url)
         logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(user, list_response.data["results"][user - 1]["user_id"])
+        self.assertEqual(
+            response.data.get("user_id"), list_response.data["results"][0]["user_id"]
+        )
 
     def test_delete_single_enrollment(self):
         """Test DELETE"""
