@@ -66,3 +66,22 @@ JWT_AUTH.update(
         ],
     }
 )
+
+
+# BEGIN CELERY
+# CELERY_WORKER_HIJACK_ROOT_LOGGER = True
+# CELERY_TASK_ALWAYS_EAGER = (
+#     os.environ.get("CELERY_ALWAYS_EAGER", "false").lower() == "true"
+# )
+# END CELERY
+
+# CORS CONFIG
+CORS_ORIGIN_WHITELIST = [
+    "http://apps.local.overhang.io:8080",  # frontend-app-classroom
+    "http://classroom.local.overhang.io:8080",  # TODO remove frontend-app-classroom
+]
+# END CORS
+
+# Install django-extensions for improved dev experiences
+# https://github.com/django-extensions/django-extensions#using-it
+INSTALLED_APPS += ("django_extensions",)
