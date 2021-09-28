@@ -1,18 +1,32 @@
 """ Tests for discovery api client """
 from unittest import mock
-from unittest.case import expectedFailure
+import ddt
 
 from django.test import TestCase
 
 from classrooms.apps.api_client.discovery import DiscoveryApiClient
+from test_utils.response import MockResponse
 
 
+@ddt.ddt
 class TestDiscoveryApiClient(TestCase):
     """DiscoveryApiClient tests."""
 
+    @ddt.data(
+        (
+            201,
+            {"key": "course-v1:DiceyTech+DT002+Y7Computing_092021"},
+        ),
+    )
+    @ddt.unpack
     @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
-    def test_create_course_run(self, mock_oauth_client):
-        """ """
+    def test_create_course_run(
+        self, expected_status_code, expected_result, mock_oauth_client
+    ):
+        """
+        Test create a course run
+        TODO Test exception 400 "Failed to set course run data: Course matching query does not exist."
+        """
 
         course_data = {
             "start": "2021-09-18T14:40",
@@ -24,11 +38,9 @@ class TestDiscoveryApiClient(TestCase):
             "term": "Y7Computing_092021",
         }
 
-        expected_course_key = f"course-v1:{course_data.get('course')}+TEST"
-
-        mock_oauth_client.return_value.post.return_value = {
-            "results": [{"key": expected_course_key}]
-        }
+        mock_oauth_client.return_value.post.return_value = MockResponse(
+            expected_result, expected_status_code
+        )
 
         client = DiscoveryApiClient()
 
@@ -36,5 +48,43 @@ class TestDiscoveryApiClient(TestCase):
 
         mock_oauth_client.return_value.post.assert_called_once()
 
-        expected_response = {"results": [{"key": expected_course_key}]}
-        self.assertEqual(expected_response, actual_response)
+        self.assertEqual(201, actual_response.status_code)
+        self.assertEqual(actual_response.json(), expected_result)
+
+    @ddt.data(
+        (
+            200,
+            "DiceyTech+EXP001+TEMPLATE",
+            {
+                "count": 1,
+                "next": "null",
+                "previous": "null",
+                "results": [
+                    {
+                        "key": "course-v1:DiceyTech+EXP001+TEMPLATE",
+                        "run_type": "1cfaba8e-16c2-4342-addd-4937b38c05ce",
+                    },
+                ],
+            },
+        )
+    )
+    @ddt.unpack
+    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    def test_get_course_run_type(
+        self, expected_status_code, course_key, expeced_result, mock_oauth_client
+    ):
+        """Test get course run type UUID for a given course run key"""
+
+        mock_oauth_client.return_value.get.return_value = MockResponse(
+            expeced_result, expected_status_code
+        )
+
+        client = DiscoveryApiClient()
+
+        actual_run_type = client.get_course_run_type(course_key)
+
+        mock_oauth_client.return_value.get.assert_called_once()
+
+        self.assertEqual(
+            expeced_result.get("results")[0].get("run_type"), actual_run_type
+        )
