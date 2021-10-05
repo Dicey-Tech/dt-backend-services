@@ -28,6 +28,7 @@ from test_utils.factories import (
     ClassroomEnrollmentFactory,
     USER_PASSWORD,
 )
+from test_utils.response import MockResponse
 
 
 logger = logging.getLogger(__name__)
@@ -85,13 +86,13 @@ class ClassroomsViewSetTests(APITestCase):
         self.classroom_4 = ClassroomFactory.create(school=FAKE_UUIDS[1])
 
         self.enrollment_1 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_1, user_id=self.teacher_1.id
+            classroom_instance=self.classroom_1, user_id=self.teacher_1.email
         )
         self.enrollment_2 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_2, user_id=self.teacher_1.id
+            classroom_instance=self.classroom_2, user_id=self.teacher_1.email
         )
         self.enrollment_3 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_3, user_id=self.teacher_2.id
+            classroom_instance=self.classroom_3, user_id=self.teacher_2.email
         )
 
         self.client.login(username=self.teacher_1, password=USER_PASSWORD)
@@ -102,11 +103,6 @@ class ClassroomsViewSetTests(APITestCase):
             "api:v1:classrooms-detail",
             kwargs={"classroom_uuid": self.classroom_1.uuid},
         )
-
-        # self.classroom_enrollments_list_url = reverse(
-        #     "api:v1:enrollments-list",
-        #     kwargs={"classroom_uuid": str(self.classroom_1.uuid)},
-        # )
 
         self.classroom_enroll_url = reverse(
             "api:v1:classrooms-enroll",
@@ -324,6 +320,7 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
 
         self.teacher_1 = UserFactory()
         self.student_1 = UserFactory()
+        self.student_2 = UserFactory()
 
         self.classroom_1 = ClassroomFactory.create(school=FAKE_UUIDS[0])
         self.classroom_2 = ClassroomFactory.create(school=FAKE_UUIDS[0])
@@ -333,7 +330,14 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             user_id=self.teacher_1.email,
             staff=True,
         )
+
         self.enrollment_2 = ClassroomEnrollmentFactory.create(
+            classroom_instance=self.classroom_1,
+            user_id=self.student_1.email,
+            staff=False,
+        )
+
+        self.enrollment_3 = ClassroomEnrollmentFactory.create(
             classroom_instance=self.classroom_2,
             user_id=self.teacher_1.email,
             staff=True,
@@ -353,14 +357,19 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             kwargs={"classroom_uuid": str(self.classroom_1.uuid)},
         )
 
-        # self.classroom_enrollments_url = reverse(
-        #     "api:v1:classroom-enrollments", kwargs={"uuid": str(self.classroom_1.uuid)}
-        # )
+    def test_get_all_enrollments_in_classroom(self):
+        """Test get a list of enrollments in a classroom"""
 
-    def _create_student_enrollment(self):
-        """Create a student enrollment in classroom_1"""
+        response = self.client.get(self.enrollments_list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 2)
+
+    # TODO test with bad request_data
+    def test_create_single_enrollment(self):
+        """Test POST endpoints creates a classroom enrollment"""
         request_data = {
-            "user_id": self.student_1.email,
+            "user_id": self.student_2.email,
         }
 
         response = self.client.post(
@@ -369,37 +378,17 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             content_type="application/json",
         )
 
-        return response
-
-    def test_get_all_enrollments_in_classroom(self):
-        """Test get a list of enrollments in a classroom"""
-
-        response = self.client.get(self.enrollments_list_url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        logger.debug(response.data.get("results"))
-        self.assertEqual(response.data.get("count"), 1)
-
-    # TODO test with bad request_data
-    def test_create_single_enrollment(self):
-        """Test POST endpoints creates a classroom enrollment"""
-
-        response = self._create_student_enrollment()
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         response = self.client.get(self.enrollments_list_url)
-        self.assertEqual(response.data.get("count"), 2)
+        self.assertEqual(response.data.get("count"), 3)
 
-    @ddt.data(1, 3)
+    @ddt.data(1, 2)
     def test_get_single_enrollment(self, pk):
         """Test GET for a single enrollment"""
         # TODO Yikes
 
-        self._create_student_enrollment()
-
         list_response = self.client.get(self.enrollments_list_url)
-        logger.debug(list_response.data)
 
         url = reverse(
             "api:v1:enrollments-detail",
@@ -408,18 +397,17 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
                 "id": pk,
             },
         )
-        logger.debug(url)
 
         response = self.client.get(url)
-        logger.debug(response.data)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data.get("user_id"), list_response.data["results"][0]["user_id"]
+            response.data.get("user_id"),
+            list_response.data["results"][pk - 1]["user_id"],
         )
 
     def test_delete_single_enrollment(self):
         """Test DELETE"""
-        self._create_student_enrollment()
         response = self.client.get(self.enrollments_list_url)
 
         self.assertEqual(response.data.get("count"), 2)
@@ -428,10 +416,10 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
             "api:v1:enrollments-detail",
             kwargs={
                 "classroom_uuid": self.classroom_1.uuid,
-                "user_id": self.student_1.id,
+                "id": response.data.get("results")[1]["pk"],
             },
         )
-        logger.debug(url)
+
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -473,9 +461,10 @@ class CourseAssignmentViewsetTests(APITestCase):
             "TEMPLATE", self.expected_course_run
         )
 
-        mock_oauth_client.return_value.post.return_value = {
-            "results": [{"key": f"course-v1:{self.expected_course_id}"}]
-        }
+        mock_oauth_client.return_value.post.return_value = MockResponse(
+            json_data={"key": f"course-v1:{self.expected_course_id}"},
+            status_code=status.HTTP_201_CREATED,
+        )
 
         self.course_assignment = CourseAssignmentFactory.create(
             course_id=self.course_ids[0], classroom_instance=self.classroom
@@ -494,7 +483,6 @@ class CourseAssignmentViewsetTests(APITestCase):
             "api:v1:assignments-list",
             kwargs={"classroom_uuid": str(self.classroom.uuid)},
         )
-        logger.info(self.assignment_list_url)
 
         super().setUp()
 

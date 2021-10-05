@@ -92,8 +92,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         enrollments = ClassroomEnrollment.objects.filter(
             user_id=self.request.user.email
         )
-        classroom_ids = []
 
+        classroom_ids = []
         for enrollment in enrollments:
             classroom_ids.append(enrollment.classroom_instance.uuid)
 
@@ -113,11 +113,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         if not school_uuid:
             return None
-        try:
-            return school_uuid
-        except ValueError as exc:
-            # TODO Test this
-            raise ParseError(f"{school_uuid} is not a valid uuid.") from exc
+
+        return school_uuid
 
     @property
     def requested_classroom_uuid(self):
@@ -219,8 +216,6 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
             enrollment_serializer.is_valid(raise_exception=True)
             enrollment_serializer.save()
 
-        logger.debug(f"identifiers: {identifiers}")
-
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["get"])
@@ -228,11 +223,6 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         """Get the list of courses"""
 
         course_list = get_course_list()
-
-        data = [
-            "course-v1:DiceyTech+EXP001+TEMPLATE",
-            "course-v1:DiceyTech+EXP003+TEMPLATE",
-        ]
 
         return Response(status=status.HTTP_200_OK, data=course_list)
 
