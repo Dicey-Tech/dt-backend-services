@@ -7,6 +7,7 @@ import json
 from classrooms.apps.api_client.base_oauth import BaseOAuthClient
 from classrooms.apps.api_client.constants import (
     DISCOVERY_COURSE_RUNS_ENDPOINT,
+    DISCOVERY_CATALOGS_ENDPOINT,
 )
 
 
@@ -59,3 +60,36 @@ class DiscoveryApiClient(BaseOAuthClient):
             raise exc
 
     # TODO get courses available for school/teacher
+    def get_course_list(self):
+        """Return a list of courses to use as templates for course assignments"""
+        try:
+            catalog_names = ["Starter Pack", "Creator Pack", "Maker Pack"]
+            logger.info(f"Get course list for catalogs {str(catalog_names)}")
+
+            response = self.client.get(DISCOVERY_CATALOGS_ENDPOINT).json()
+
+            logger.info(f"Response: {response}")
+            catalogs_ids = []
+
+            for catalog in response.get("results"):
+                if catalog["name"] in catalog_names and catalog["courses_count"] > 0:
+                    catalogs_ids.append(catalog["id"])
+
+            course_list = []
+
+            for id in catalogs_ids:
+                response = self.client.get(
+                    DISCOVERY_CATALOGS_ENDPOINT + f"{id}/courses"
+                ).json()
+
+                for course in response.get("results"):
+                    course_list.append(course["course_runs"][0]["key"])
+
+            logger.debug(f"Found {len(course_list)} courses.")
+
+            return course_list
+
+        except Exception as exc:
+            logger.exception(f"Something went wrong...")
+
+            return []

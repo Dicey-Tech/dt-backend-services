@@ -113,6 +113,11 @@ class ClassroomsViewSetTests(APITestCase):
             kwargs={"classroom_uuid": str(self.classroom_1.uuid)},
         )
 
+        self.courses_list_url = reverse(
+            "api:v1:classrooms-courses",
+            kwargs={"classroom_uuid": str(self.classroom_1.uuid)},
+        )
+
     def test_unauthenticated_user_401(self):
         """Test that unauthenticated users receive a 401 from the classroom endpoint."""
         self.client.logout()
@@ -292,6 +297,20 @@ class ClassroomsViewSetTests(APITestCase):
 
         # self.assertGreater(len(after), len(before))
         # self.assertIsNotNone(response.data.get("enrolled"))
+
+    def test_get_course_list(self):
+        """Test to get a list of courses"""
+
+        # init a JWT cookie (so the user is authenticated) with admin role
+        init_jwt_cookie(
+            self.client,
+            self.teacher_1,
+            [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
+        )
+
+        response = self.client.get(self.courses_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
 
 @ddt.ddt

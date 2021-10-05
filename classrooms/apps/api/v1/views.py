@@ -26,6 +26,7 @@ from classrooms.apps.classrooms.models import (
     CourseAssignment,
 )
 from classrooms.apps.classrooms import constants
+from classrooms.apps.classrooms.utils import get_course_list
 
 logger = logging.getLogger(__name__)
 
@@ -222,6 +223,19 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         return Response(status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=["get"])
+    def courses(self, request, classroom_uuid):
+        """Get the list of courses"""
+
+        course_list = get_course_list()
+
+        data = [
+            "course-v1:DiceyTech+EXP001+TEMPLATE",
+            "course-v1:DiceyTech+EXP003+TEMPLATE",
+        ]
+
+        return Response(status=status.HTTP_200_OK, data=course_list)
+
 
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     """
@@ -342,3 +356,15 @@ class CourseAssignmentViewset(viewsets.ModelViewSet):
         )
 
         return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Disable DELETE for now.
+        """
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Disable PATCH for now.
+        """
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

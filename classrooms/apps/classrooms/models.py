@@ -161,18 +161,21 @@ class CourseAssignment(TimeStampedModel):
         start = datetime.today()
         end = start + timedelta(days=90)
 
+        client = DiscoveryApiClient()
+
+        run_type = client.get_course_run_type(course_key)
+
         course_data = {
             "start": start.strftime(DATETIME_FORMAT),
             "end": end.strftime(DATETIME_FORMAT),
             "pacing_type": "self_paced",
-            "run_type": "1cfaba8e-16c2-4342-addd-4937b38c05ce",
+            "run_type": run_type,
             "status": "published",
             "course": course_key,
             "term": course_run,
         }
-        # TODO Keep out until setup in production is ready
-        # client = DiscoveryApiClient()
-        # response = client.create_course_run(course_data)
+
+        response = client.create_course_run(course_data)
 
         self.course_id = self.course_id.replace("TEMPLATE", course_run)
 
