@@ -10,7 +10,8 @@ import ddt
 from pytest import mark
 from django.test import TestCase
 
-from classrooms.apps.classrooms.models import Classroom, CourseAssignment
+from rest_framework import status
+
 from classrooms.apps.classrooms.constants import DATE_FORMAT
 from test_utils.factories import (
     ClassroomEnrollmentFactory,
@@ -18,6 +19,7 @@ from test_utils.factories import (
     CourseAssignmentFactory,
     UserFactory,
 )
+from test_utils.response import MockResponse
 
 
 @mark.django_db
@@ -104,9 +106,10 @@ class TestCourseAssignment(TestCase):
             "TEMPLATE", self.expected_course_run
         )
 
-        mock_oauth_client.return_value.post.return_value = {
-            "results": [{"key": f"course-v1:{self.expected_course_id}"}]
-        }
+        mock_oauth_client.return_value.post.return_value = MockResponse(
+            {"key": f"course-v1:{self.expected_course_id}"},
+            status_code=status.HTTP_201_CREATED,
+        )
 
         self.course_assignment = CourseAssignmentFactory.create(
             course_id=self.template_course_id,
@@ -134,5 +137,3 @@ class TestCourseAssignment(TestCase):
             self.course_assignment.course_id,
             self.expected_course_id,
         )
-
-    # TODO when course is assigned and classroom enrollments exist test that users are enrolled
