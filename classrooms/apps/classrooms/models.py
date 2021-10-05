@@ -163,7 +163,7 @@ class CourseAssignment(TimeStampedModel):
 
         client = DiscoveryApiClient()
 
-        run_type = client.get_course_run_type(course_key)
+        run_type = client.get_course_run_type(self.course_id)
 
         course_data = {
             "start": start.strftime(DATETIME_FORMAT),

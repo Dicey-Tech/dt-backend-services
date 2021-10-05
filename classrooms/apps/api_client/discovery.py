@@ -49,6 +49,11 @@ class DiscoveryApiClient(BaseOAuthClient):
             response = self.client.get(
                 DISCOVERY_COURSE_RUNS_ENDPOINT, params={"keys": course_key}
             )
+            response.raise_for_status()
+
+            logger.info(response.json())
+            if not response.json().get("results"):
+                return ""
 
             run_type = response.json().get("results")[0].get("run_type")
 
