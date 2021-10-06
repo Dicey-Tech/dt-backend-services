@@ -175,7 +175,7 @@ class CourseAssignment(TimeStampedModel):
             "term": course_run,
         }
 
-        response = client.create_course_run(course_data)
+        client.create_course_run(course_data)
 
         self.course_id = self.course_id.replace("TEMPLATE", course_run)
 

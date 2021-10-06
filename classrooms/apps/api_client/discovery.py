@@ -31,6 +31,7 @@ class DiscoveryApiClient(BaseOAuthClient):
 
             response.raise_for_status()
 
+            logger.info(f"Created course run {response.json().get('key')}")
             return response
         except Exception as exc:
             logger.exception(
