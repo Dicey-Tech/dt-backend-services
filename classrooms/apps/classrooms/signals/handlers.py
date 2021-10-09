@@ -34,7 +34,7 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
     identifiers_list = [enrollment.user_id for enrollment in classroom_enrollments]
     identifiers = ",".join(identifiers_list)
 
-    course_run_id = "course-v1:" + instance.course_id
+    course_run_id = instance.course_id
 
     client = LMSApiClient()
 
@@ -60,7 +60,7 @@ def enroll_from_classroom_enrollment(sender, instance, created, **kwargs):
 
     logger.info(f"Enroll user {instance.user_id} in {len(course_assignments)} courses")
 
-    course_ids_list = ["course-v1:" + course.course_id for course in course_assignments]
+    course_ids_list = [course.course_id for course in course_assignments]
     courses = ",".join(course_ids_list)
 
     client = LMSApiClient()

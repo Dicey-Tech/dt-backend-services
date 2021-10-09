@@ -2,7 +2,8 @@
 Discovery service api client code.
 """
 import logging
-import json
+
+from opaque_keys.edx.keys import CourseKey
 
 from classrooms.apps.api_client.base_oauth import BaseOAuthClient
 from classrooms.apps.api_client.constants import (
@@ -32,17 +33,15 @@ class DiscoveryApiClient(BaseOAuthClient):
             response.raise_for_status()
 
             logger.info(f"Created course run {response.json().get('key')}")
-            return response
+            return response.json()
         except Exception as exc:
             logger.exception(
                 f"Could not create course run from course with key {course_data.get('course')}"
             )
             raise exc
 
-    # TODO Get runs_type UUIDs http://discovery.local.overhang.io/api/v1/courses/DiceyTech%2BEXP001/
-    def get_course_run_type(self, course_key):
+    def get_course_run_type(self, course_key: CourseKey):
         """Get Run Type UUID from Course"""
-        course_key = "course-v1:" + course_key
 
         try:
             logger.info(f"Get run type UUID from course {course_key}")

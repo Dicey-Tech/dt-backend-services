@@ -94,7 +94,7 @@ class TestCourseAssignment(TestCase):
     def setUp(self, mock_oauth_client) -> None:
 
         self.classroom_instance = ClassroomFactory.create()
-        self.template_course_id = "DiceyTech+BOX001+TEMPLATE"
+        self.template_course_id = "course-v1:DiceyTech+BOX001+TEMPLATE"
 
         self.expected_course_run = (
             self.classroom_instance.name.replace(" ", "")
@@ -107,7 +107,7 @@ class TestCourseAssignment(TestCase):
         )
 
         mock_oauth_client.return_value.post.return_value = MockResponse(
-            {"key": f"course-v1:{self.expected_course_id}"},
+            {"key": self.expected_course_id},
             status_code=status.HTTP_201_CREATED,
         )
 

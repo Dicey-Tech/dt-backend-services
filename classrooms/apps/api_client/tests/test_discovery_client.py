@@ -48,8 +48,7 @@ class TestDiscoveryApiClient(TestCase):
 
         mock_oauth_client.return_value.post.assert_called_once()
 
-        self.assertEqual(201, actual_response.status_code)
-        self.assertEqual(actual_response.json(), expected_result)
+        self.assertEqual(actual_response, expected_result)
 
     @ddt.data(
         (

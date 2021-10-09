@@ -27,7 +27,10 @@ from classrooms.apps.core import views as core_views
 admin.autodiscover()
 
 api_info = make_api_info(
-    title="Classroom API", version="v1", description="APIs for Dicey Tech Classroom"
+    title="Classroom API",
+    version="v1",
+    description="APIs for Dicey Tech Classroom",
+    email="support@diceytech.co.uk",
 )
 
 urlpatterns = oauth2_urlpatterns + [

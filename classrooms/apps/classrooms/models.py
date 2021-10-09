@@ -2,6 +2,7 @@
 Database models for classroom.
 """
 from uuid import uuid4
+import logging
 from datetime import date, datetime, timedelta
 
 from django.db import models
@@ -9,11 +10,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from edx_rbac.models import UserRole, UserRoleAssignment
 from edx_rbac.utils import ALL_ACCESS_CONTEXT
+from opaque_keys.edx.keys import CourseKey
+from opaque_keys import InvalidKeyError
 
 from model_utils.models import TimeStampedModel
 
 from classrooms.apps.api_client.discovery import DiscoveryApiClient
 from classrooms.apps.classrooms.constants import DATE_FORMAT, DATETIME_FORMAT
+
+logger = logging.getLogger(__name__)
 
 
 class Classroom(TimeStampedModel):
@@ -149,15 +154,19 @@ class CourseAssignment(TimeStampedModel):
         Create a new course run from the course ID selected and assign the new course to the
         classroom.
         """
-
-        course_run = (
+        # TODO Check if course run exist
+        run = (
             self.classroom_instance.name.replace(" ", "")
             + "_"
             + date.today().strftime(DATE_FORMAT)
         )
+        course_key = self.course_id.replace("TEMPLATE", run)
+        try:
+            course = CourseKey.from_string(course_key)
+        except InvalidKeyError:
+            logger.exception(f"Course key {course_key} is not recognised")
 
         # Create a course run using the discovery API DiceyTech+DT002
-        course_key = self.course_id.replace("+TEMPLATE", "")
         start = datetime.today()
         end = start + timedelta(days=90)
 
@@ -171,13 +180,13 @@ class CourseAssignment(TimeStampedModel):
             "pacing_type": "self_paced",
             "run_type": run_type,
             "status": "published",
-            "course": course_key,
-            "term": course_run,
+            "course": f"{course.org}+{course.course}",
+            "term": course.run,
         }
 
-        client.create_course_run(course_data)
+        response = client.create_course_run(course_data)
 
-        self.course_id = self.course_id.replace("TEMPLATE", course_run)
+        self.course_id = response.get("key")
 
         super().save(*args, **kwargs)
 

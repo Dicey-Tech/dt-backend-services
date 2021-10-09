@@ -5,6 +5,8 @@ from uuid import uuid4
 import ddt
 from django.test import TestCase
 
+from rest_framework import status
+
 from classrooms.apps.api_client.enterprise import EnterpriseApiClient
 from classrooms.apps.api_client.constants import (
     ENTERPRISE_CUSTOMER_ENDPOINT,
@@ -121,3 +123,17 @@ class TestEnterpriseApiClient(TestCase):
             self.assertEqual(learner_data, mock_response_results)
         else:
             self.assertEqual(learner_data, {})
+
+    def test_create_enterprise_enrollment(self):
+        """ "
+        Test create_enterprise_enrollment
+        """
+        enrollment_data = {
+            "username": "sofiane",
+            "course_id": "course-v1:DiceyTech+DT002+3T2021a",
+        }
+
+        client = EnterpriseApiClient()
+        response = client.create_enterprise_enrollment()
+
+        self.assertEqual(status.HTTP_201_CREATED, response.status)

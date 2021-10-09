@@ -445,8 +445,8 @@ class CourseAssignmentViewsetTests(APITestCase):
         self.teacher_1 = UserFactory()
 
         self.course_ids = [
-            "DiceyTech+BOX001+TEMPLATE",
-            "DiceyTech+EXP001+TEMPLATE",
+            "course-v1:DiceyTech+BOX001+TEMPLATE",
+            "course-v1:DiceyTech+EXP001+TEMPLATE",
         ]
 
         self.classroom = ClassroomFactory.create(school=FAKE_UUIDS[0])
@@ -462,7 +462,7 @@ class CourseAssignmentViewsetTests(APITestCase):
         )
 
         mock_oauth_client.return_value.post.return_value = MockResponse(
-            json_data={"key": f"course-v1:{self.expected_course_id}"},
+            json_data={"key": self.expected_course_id},
             status_code=status.HTTP_201_CREATED,
         )
 
