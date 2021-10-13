@@ -8,11 +8,16 @@ import re
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
-from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from edx_rbac.mixins import PermissionRequiredForListingMixin
+from edx_api_doc_tools import (
+    string_parameter,
+    schema_for,
+    ParameterLocation,
+    query_parameter,
+)
 
 from classrooms.apps.api.serializers import (
     ClassroomSerializer,
@@ -31,15 +36,76 @@ from classrooms.apps.classrooms.utils import get_course_list
 logger = logging.getLogger(__name__)
 
 
+@schema_for(
+    "list",
+    """
+    Fetch the list of classrooms the request user is enrolled in.
+    """,
+)
+@schema_for(
+    "retrieve",
+    """
+    Fetch details for a single classroom by uuid.
+    """,
+)
+@schema_for(
+    "create",
+    """
+    Create a classroom.
+
+    Creating a classroom also triggers the creation of an enrollment for the as staff for 
+    the user initiating the call.
+    """,
+)
+@schema_for(
+    "update",
+    """
+    Edit a classroom name or status.
+
+    The 'school' may not be specified via the HTTP API since it can only be
+    assigned when the classroom is created.
+    """,
+)
+@schema_for(
+    "courses",
+    """
+    Get the list of course IDs that can be used to create course assignments.
+    """,
+    responses={
+        200: """
+        [
+            "course-v1:DiceyTech+EXP001+TEMPLATE",
+            "course-v1:DiceyTech+EXP002+TEMPLATE"
+        ]
+        """,
+    },
+)
+# TODO Improve Parameter display
+@schema_for(
+    "enroll",
+    """
+    Create enrollment(s) for one or more users.
+
+    **Example Request**
+
+        POST api/v1/classrooms/<uuid>/enroll/ {
+            'identifiers': 'student_1@school.sch,student2@school.sch',
+        }
+    """,
+    # parameters=[
+    #     string_parameter(
+    #         "identifiers",
+    #         ParameterLocation.BODY,
+    #         "A string of email that can be separated by a new line, a comma or a space",
+    #     ),
+    # ],
+    responses={
+        201: "Response body is currently empty.",
+    },
+)
 class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet):
     """
-    Classroom view to:
-        - list classroom data (GET .../)
-        - retrieve single classroom (GET .../uuid)
-        - create a classroom via the POST endpoint (POST .../)
-        - update a classroom via the PUT endpoint (PUT .../<uuid>)
-        - retrieve classroom enrollments (GET .../uuid/enrollments)
-        - enroll users in the classroom (POST .../uuid/enroll
+    Viewset for CRUD operations on Classroom models.
     """
 
     authentication_classes = [JwtAuthentication]
@@ -149,10 +215,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     def update(self, request, *args, **kwargs):
         """
-        Update a classroom data.
-
-        The 'school' may not be specified via the HTTP API since it can only be
-        assigned when the classroom is created.
+        Update a classroom name or status.
         """
         classroom = get_object_or_404(Classroom, uuid=kwargs.get("classroom_uuid"))
 
@@ -175,6 +238,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     def destroy(self, request, *args, **kwargs):
         """
+        ** Not allowed. **
+
         Disable DELETE because all classromms should be kept and deactivated to be
         archived.
         """
@@ -182,6 +247,8 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     def partial_update(self, request, *args, **kwargs):
         """
+        ** Not allowed. **
+
         Disable PATCH because all classroom modifications should done with the UPDATE
         endpoint.
         """
@@ -199,7 +266,12 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     @action(detail=True, methods=["post"])
     def enroll(self, request, classroom_uuid):
-        """Create enrollment(s) for one or more users"""
+        """
+        Create enrollment(s) for one or more users.
+
+        TODO: Response body is currently empty.
+        TODO: Enroll additional staff
+        """
 
         identifiers_raw = request.data.get("identifiers")
         identifiers = self._split_input_list(identifiers_raw)
@@ -220,22 +292,58 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
     @action(detail=True, methods=["get"])
     def courses(self, request, classroom_uuid):
-        """Get the list of courses"""
+        """
+        ** Get the list of course IDs that can be used to create course assignments. **
+
+        If an error occur an empty list will be returned.
+
+        **Example Request**
+
+            GET api/v1/classrooms/<uuid>/courses
+
+        **Response Values**
+
+            Reponse.data = [
+                "course-v1:DiceyTech+EXP001+TEMPLATE",
+                "course-v1:DiceyTech+EXP002+TEMPLATE"
+            ]
+
+        """
 
         course_list = get_course_list()
 
         return Response(status=status.HTTP_200_OK, data=course_list)
 
 
+@schema_for(
+    "list",
+    """
+    Get the list of all enrollments linked to this classroom.
+    """,
+)
+@schema_for(
+    "retrieve",
+    """
+    Fetch details for a single classroom enrollment by id.
+    """,
+    parameters=[query_parameter("id", int, "Enrollment id")],
+)
+# TODO Improve Parameter display
+@schema_for(
+    "create",
+    """
+    Create a classroom enrollment.
+
+    **POST Parameters**
+
+        A POST request must include an emails.
+
+        * user_id: ID of the user enrolled in the Classroom
+    """,
+)
 class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     """
-    Viewset for operations on classroom enrollments
-        - List enrollments for the current classroom (GET enrollments/)
-        - retrieve single enrollment (GET enrollments/<id>)
-        - TODO Update
-        - TODO Delete
-
-    Viewset for operations on individual enrollments in a given classroom.
+    Viewset for CRUD operations on ClassroomEnrollment models.
     """
 
     authentication_classes = [JwtAuthentication]
@@ -269,11 +377,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a classroom enrollment
-        Parameters:
-            - user_id: ID of the user enrolled in the Classroom
-        """
+        """Create a classroom enrollment"""
         enrollment_data = {
             "classroom_instance": self._get_classroom().uuid,
             "user_id": self.request.data.get("user_id"),
@@ -288,8 +392,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    # def retrieve(self, request, user_id):
-
+    # def retrieve(self, request, *args, **kwargs):
     #     enrollment_data = {
     #         "classroom_instance": self._get_classroom().uuid,
     #         "user_id": user_id,
@@ -298,25 +401,53 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
     #     serializer = self.serializer_class(data=enrollment_data)
 
     #     return serializer
+    def destroy(self, request, *args, **kwargs):
+        """
+        ** Not allowed. **
+
+        Disable for now until unenrollment is implemented.
+        """
+        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def update(self, request, *args, **kwargs):
         """
-        Disable UPDATE because enrollments cannot be amended.
+        ** Not allowed. **
+
+        Enrollments cannot be amended.
         """
         return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def partial_update(self, request, *args, **kwargs):
         """
-        Disable PATCH because enrollments cannot be amended.
+        ** Not allowed **
+
+        Enrollments cannot be amended.
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+@schema_for(
+    "list",
+    """
+    Get the list of all assignments linked to this classroom.
+    """,
+)
+@schema_for(
+    "retrieve",
+    """
+    Fetch details for a single classroom assignent by id.
+    """,
+    # parameters=[query_parameter("id", int, "Enrollment id")],
+)
+# TODO Improve Parameter display
+@schema_for(
+    "create",
+    """
+    Create a course assignment.
+    """,
+)
 class CourseAssignmentViewset(viewsets.ModelViewSet):
-    """
-    Viewset for operations on course assignments
-
-    """
+    """Viewset for operations on course assignments"""
 
     authentication_classes = [JwtAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -347,14 +478,29 @@ class CourseAssignmentViewset(viewsets.ModelViewSet):
 
         return queryset
 
+    def update(self, request, *args, **kwargs):
+        """
+        ** Not allowed **
+
+        Course assignments cannot be amended.
+
+        """
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def destroy(self, request, *args, **kwargs):
         """
-        Disable DELETE for now.
+        ** Not allowed **
+
+        For now until unenrollment is implemented.
+
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def partial_update(self, request, *args, **kwargs):
         """
-        Disable PATCH for now.
+        ** Not allowed **
+
+        Course assignments cannot be amended.
+
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
