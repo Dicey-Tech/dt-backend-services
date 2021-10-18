@@ -36,7 +36,7 @@ class DiscoveryApiClient(BaseOAuthClient):
             return response.json()
         except Exception as exc:
             logger.exception(
-                f"Could not create course run from course with key {course_data.get('course')}"
+                f"Could not create course run from course with data {course_data}"
             )
             raise exc
 
@@ -58,6 +58,10 @@ class DiscoveryApiClient(BaseOAuthClient):
             run_type = response.json().get("results")[0].get("run_type")
 
             return run_type
+        except IndexError as exc:
+            logger.exception(f"No run type was found for {course_key}")
+
+            return None
         except Exception as exc:
             logger.exception(
                 f"Could not get course details for course run with key {course_key}"
