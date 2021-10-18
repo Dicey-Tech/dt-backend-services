@@ -155,6 +155,12 @@ class CourseAssignment(TimeStampedModel):
         classroom.
         """
         # TODO Check if course run exist
+
+        # If the assignment already exist just update it
+        if self.pk is not None:
+            super().save(*args, **kwargs)
+            return
+
         run = (
             self.classroom_instance.name.replace(" ", "")
             + "_"

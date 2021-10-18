@@ -20,6 +20,11 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
     in the newly create course run.
     """
 
+    if not created:
+        return
+
+    logger.info(f"created? {created}")
+
     classroom_enrollments = ClassroomEnrollment.objects.filter(
         classroom_instance=instance.classroom_instance
     )
@@ -50,7 +55,9 @@ def enroll_from_classroom_enrollment(sender, instance, created, **kwargs):
     When a ClassroomEnrollment is created, lookup all existing CourseAssignments. For each
     assignment, enroll the students in the course.
     """
-
+    if not created:
+        return
+    logger.info(f"created? {created}")
     course_assignments = CourseAssignment.objects.filter(
         classroom_instance=instance.classroom_instance
     )
