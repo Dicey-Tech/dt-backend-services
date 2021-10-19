@@ -92,13 +92,13 @@ class DiscoveryApiClient(BaseOAuthClient):
                 ).json()
 
                 for course in response.get("results"):
-                    course_list.append(course["course_runs"][0]["key"])
+                    course_list.append(course["course_runs"][0])
 
             logger.debug(f"Found {len(course_list)} courses.")
 
             return course_list
 
         except Exception as exc:
-            logger.exception(f"Something went wrong...")
+            logger.exception(f"Something went wrong...{exc.content}")
 
             return []
