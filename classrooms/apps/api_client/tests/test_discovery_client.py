@@ -87,3 +87,75 @@ class TestDiscoveryApiClient(TestCase):
         self.assertEqual(
             expeced_result.get("results")[0].get("run_type"), actual_run_type
         )
+
+    # TODO test_get_course_list
+    """
+      "course_runs": [
+        {
+            "key": "course-v1:DiceyTech+EXP001+TEMPLATE",
+            "uuid": "ee27844d-fd85-46eb-ae6a-fff649094ab1",
+            "title": "RPS",
+            "external_key": null,
+            "image": {
+            "src": "http://local.overhang.io/asset-v1:DiceyTech+EXP001+TEMPLATE+type@asset+block@Rock_Paper_Scissors_Project_Cover.png",
+            "description": null,
+            "height": null,
+            "width": null
+            },
+            "short_description": null,
+            "marketing_url": "course/rps-course-v1diceytechexp001template?utm_source=sofiane&utm_medium=affiliate_partner",
+            "seats": [
+                {
+                    "type": "honor",
+                    "price": "0.00",
+                    "currency": "USD",
+                    "upgrade_deadline": null,
+                    "credit_provider": null,
+                    "credit_hours": null,
+                    "sku": "A947FB2",
+                    "bulk_sku": null
+                }
+            ],
+            "start": "2030-01-01T00:00:00Z",
+            "end": null,
+            "go_live_date": null,
+            "enrollment_start": null,
+            "enrollment_end": null,
+            "pacing_type": "instructor_paced",
+            "type": "honor",
+            "run_type": "1cfaba8e-16c2-4342-addd-4937b38c05ce",
+            "status": "published",
+            "is_enrollable": true,
+            "is_marketable": true,
+            "course": "DiceyTech+EXP001",
+            "full_description": null,
+            "announcement": null,
+            "video": null,
+            "content_language": null,
+            "license": "",
+            "outcome": null,
+            "transcript_languages": [],
+            "instructors": [],
+            "staff": [],
+            "min_effort": null,
+            "max_effort": null,
+            "weeks_to_complete": null,
+            "modified": "2021-09-27T10:41:55.233173Z",
+            "level_type": null,
+            "availability": "Upcoming",
+            "mobile_available": false,
+            "hidden": false,
+            "reporting_type": "mooc",
+            "eligible_for_financial_aid": true,
+            "first_enrollable_paid_seat_price": null,
+            "has_ofac_restrictions": null,
+            "ofac_comment": "",
+            "enrollment_count": 0,
+            "recent_enrollment_count": 0,
+            "expected_program_type": null,
+            "expected_program_name": "",
+            "course_uuid": "17df0b65-c588-4608-9edc-1fa3fdbcc2d6",
+            "estimated_hours": 0,
+            "content_language_search_facet_name": null
+        }]
+    """

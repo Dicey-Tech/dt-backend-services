@@ -30,7 +30,7 @@ from classrooms.apps.classrooms.models import (
     CourseAssignment,
 )
 from classrooms.apps.classrooms import constants
-from classrooms.apps.classrooms.utils import get_course_list
+from classrooms.apps.classrooms.course_list import get_course_list
 
 logger = logging.getLogger(__name__)
 

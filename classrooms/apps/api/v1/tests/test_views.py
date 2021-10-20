@@ -494,7 +494,11 @@ class CourseAssignmentViewsetTests(APITestCase):
         )
 
         mock_oauth_client.return_value.post.return_value = MockResponse(
-            json_data={"key": self.expected_course_id},
+            json_data={
+                "key": self.expected_course_id,
+                "start": "2021-09-18T14:40:00Z",
+                "end": "2021-12-18T14:40:00Z",
+            },
             status_code=status.HTTP_201_CREATED,
         )
 

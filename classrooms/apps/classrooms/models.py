@@ -17,6 +17,7 @@ from model_utils.models import TimeStampedModel
 
 from classrooms.apps.api_client.discovery import DiscoveryApiClient
 from classrooms.apps.classrooms.constants import DATE_FORMAT, DATETIME_FORMAT
+from classrooms.apps.classrooms.course_runs import create_course_run
 
 logger = logging.getLogger(__name__)
 
@@ -166,33 +167,28 @@ class CourseAssignment(TimeStampedModel):
             + "_"
             + date.today().strftime(DATE_FORMAT)
         )
+        template_course_key = self.course_id
         course_key = self.course_id.replace("TEMPLATE", run)
+
         try:
             course = CourseKey.from_string(course_key)
         except InvalidKeyError:
-            logger.exception(f"Course key {course_key} is not recognised")
+            logger.exception(f"Course key {course_key} is not recognised.")
 
-        # Create a course run using the discovery API DiceyTech+DT002
         start = datetime.today()
         end = start + timedelta(days=90)
-
-        client = DiscoveryApiClient()
-
-        run_type = client.get_course_run_type(self.course_id)
 
         course_data = {
             "start": start.strftime(DATETIME_FORMAT),
             "end": end.strftime(DATETIME_FORMAT),
             "pacing_type": "self_paced",
-            "run_type": run_type,
+            "run_type": "",
             "status": "published",
             "course": f"{course.org}+{course.course}",
             "term": course.run,
         }
 
-        response = client.create_course_run(course_data)
-
-        self.course_id = response.get("key")
+        self.course_id = create_course_run(template_course_key, course_data)
 
         super().save(*args, **kwargs)
 

@@ -264,6 +264,9 @@ LOGGING = get_logger_config(debug=DEBUG)
 # Default URLS for LMS
 LMS_BASE_URL = os.environ.get("LMS_BASE_URL", "")
 
+# Default URLs for CMS
+CMS_BASE_URL = os.environ.get("CMS_BASE_URL", "")
+
 # Set up system-to-feature roles mapping for edx-rbac
 SYSTEM_TO_FEATURE_ROLE_MAPPING = {
     SYSTEM_ENTERPRISE_ADMIN_ROLE: [CLASSROOM_TEACHER_ROLE],

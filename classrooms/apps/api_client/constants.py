@@ -10,6 +10,9 @@ LMS_BULK_ENROLLMENT_ENDPOINT = urljoin(
     settings.LMS_BASE_URL, "/api/bulk_enroll/v1/bulk_enroll"
 )
 
+# Studio API Client Constants
+STUDIO_COURSE_RUNS_ENDPOINT = urljoin(settings.CMS_BASE_URL, "api/v1/course_runs/")
+
 # Discovery API Client Constants
 DISCOVERY_SEARCH_ALL_ENDPOINT = urljoin(
     settings.DISCOVERY_SERVICE_API_URL, "search/all/"

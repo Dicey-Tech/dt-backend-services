@@ -1,5 +1,4 @@
-""" Utility functions """
-# from datetime import datetime, timedelta
+""" Abstraction layer to handle the implementation details for listing available courses """
 from typing import List
 import logging
 

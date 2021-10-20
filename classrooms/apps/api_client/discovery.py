@@ -51,7 +51,7 @@ class DiscoveryApiClient(BaseOAuthClient):
             )
             response.raise_for_status()
 
-            logger.info(response.json())
+            logger.debug(response.json())
             if not response.json().get("results"):
                 return ""
 
