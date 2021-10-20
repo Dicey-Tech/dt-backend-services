@@ -23,8 +23,6 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
     if not created:
         return
 
-    logger.info(f"created? {created}")
-
     classroom_enrollments = ClassroomEnrollment.objects.filter(
         classroom_instance=instance.classroom_instance
     )
@@ -57,7 +55,7 @@ def enroll_from_classroom_enrollment(sender, instance, created, **kwargs):
     """
     if not created:
         return
-    logger.info(f"created? {created}")
+
     course_assignments = CourseAssignment.objects.filter(
         classroom_instance=instance.classroom_instance
     )

@@ -422,11 +422,43 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
 
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
         response = self.client.get(self.enrollments_list_url)
 
-        self.assertEqual(response.data.get("count"), 1)
+        self.assertEqual(response.data.get("count"), 2)
+
+    def test_update_single_enrollment_returns_405(self):
+        """Test UPDATE endpoint returns 405 because we don't support it"""
+        response = self.client.get(self.enrollments_list_url)
+
+        url = reverse(
+            "api:v1:enrollments-detail",
+            kwargs={
+                "classroom_uuid": self.classroom_1.uuid,
+                "id": response.data.get("results")[1]["pk"],
+            },
+        )
+
+        response = self.client.put(url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_patch_single_enrollment_returns_405(self):
+        """Test PATCH endpoint returns 405 because we don't support it"""
+        response = self.client.get(self.enrollments_list_url)
+
+        url = reverse(
+            "api:v1:enrollments-detail",
+            kwargs={
+                "classroom_uuid": self.classroom_1.uuid,
+                "id": response.data.get("results")[1]["pk"],
+            },
+        )
+
+        response = self.client.patch(url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     # TODO test bulk enrollments
     # TODO What if there is only 1 enrollment left in the classroom?

@@ -4,6 +4,7 @@ Views for classroom end points.
 
 import logging
 import re
+from typing import List
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import status, viewsets, permissions
@@ -13,9 +14,7 @@ from django.shortcuts import get_object_or_404
 
 from edx_rbac.mixins import PermissionRequiredForListingMixin
 from edx_api_doc_tools import (
-    string_parameter,
     schema_for,
-    ParameterLocation,
     query_parameter,
 )
 
@@ -186,7 +185,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
     allowed_roles = [constants.CLASSROOM_TEACHER_ROLE]
     role_assignment_class = ClassroomRoleAssignment
 
-    def _split_input_list(self, str_list):
+    def _split_input_list(self, str_list: str) -> List:
         """
         Separate out individual student email from the comma, or space separated string.
         e.g.
@@ -229,7 +228,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Classroom.objects.filter(uuid__in=classroom_ids)
 
     @property
-    def requested_school_uuid(self):
+    def requested_school_uuid(self) -> str:
         """
         Return school uuid
         """
@@ -246,7 +245,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return school_uuid
 
     @property
-    def requested_classroom_uuid(self):
+    def requested_classroom_uuid(self) -> str:
         return self.kwargs.get("classroom_uuid")
 
     def create(self, request, *args, **kwargs):
@@ -276,7 +275,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
             status=status.HTTP_201_CREATED,
         )
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs) -> Response:
         """
         Update a classroom name or status.
         """
@@ -299,7 +298,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs) -> Response:
         """
         ** Not allowed. **
 
@@ -308,7 +307,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request, *args, **kwargs) -> Response:
         """
         ** Not allowed. **
 
@@ -317,7 +316,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def get_permission_object(self):
+    def get_permission_object(self) -> str:
         """
         Retrieves the apporpriate user object to use during edx-rbac's permission checks.
         This object is passed to the rule predicate(s).
@@ -328,7 +327,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return self.requested_school_uuid
 
     @action(detail=True, methods=["post"])
-    def enroll(self, request, classroom_uuid):
+    def enroll(self, request, classroom_uuid: str) -> Response:
         """
         Create enrollment(s) for one or more users.
 
@@ -354,7 +353,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["get"])
-    def courses(self, request, classroom_uuid):
+    def courses(self, request, classroom_uuid: str) -> Response:
         """
         ** Get the list of course IDs that can be used to create course assignments. **
 
@@ -470,7 +469,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
 
         Disable for now until unenrollment is implemented.
         """
-        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def update(self, request, *args, **kwargs):
         """
@@ -478,7 +477,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
 
         Enrollments cannot be amended.
         """
-        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def partial_update(self, request, *args, **kwargs):
         """

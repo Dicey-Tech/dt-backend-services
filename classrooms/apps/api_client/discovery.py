@@ -99,6 +99,6 @@ class DiscoveryApiClient(BaseOAuthClient):
             return course_list
 
         except Exception as exc:
-            logger.exception(f"Something went wrong...{exc.content}")
+            logger.exception(f"Something went wrong...{exc}")
 
             return []
