@@ -14,20 +14,32 @@ class TestLMSApiClient(TestCase):
 
     @ddt.data(
         (
-            "course-v1:DiceyTech+DT002+Y7Computing_092021",
+            ["course-v1:DiceyTech+DT002+Y7Computing_092021"],
+            ["student1@school1.co.uk"],
+        ),
+        (
+            [
+                "course-v1:DiceyTech+DT002+Y7Computing_092021",
+                "course-v1:DiceyTech+DT002+Y7Computing_102021",
+            ],
             "student1@school1.co.uk",
         ),
         (
-            "course-v1:DiceyTech+DT002+Y7Computing_092021,course-v1:DiceyTech+DT002+Y7Computing_102021",
-            "student1@school1.co.uk",
+            ["course-v1:DiceyTech+DT002+Y7Computing_102021"],
+            [
+                "student1@school1.co.uk",
+                "student2@school1.co.uk",
+            ],
         ),
         (
-            "course-v1:DiceyTech+DT002+Y7Computing_102021",
-            "student1@school1.co.uk,student2@school1.co.uk",
-        ),
-        (
-            "course-v1:DiceyTech+DT002+Y7Computing_092021,course-v1:DiceyTech+DT002+Y7Computing_102021",
-            "student1@school1.co.uk,student2@school1.co.uk",
+            [
+                "course-v1:DiceyTech+DT002+Y7Computing_092021",
+                "course-v1:DiceyTech+DT002+Y7Computing_102021",
+            ],
+            [
+                "student1@school1.co.uk",
+                "student2@school1.co.uk",
+            ],
         ),
     )
     @ddt.unpack
@@ -45,6 +57,6 @@ class TestLMSApiClient(TestCase):
 
         client = LMSApiClient()
 
-        response = client.bulk_enroll(courses=courses, usernames=students)
+        response = client.bulk_enroll(courses=courses, identifiers=students)
 
         mock_oauth_client.return_value.post.assert_called_once()

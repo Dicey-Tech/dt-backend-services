@@ -18,12 +18,12 @@ class StudioApiClient(BaseOAuthClient):
     """
 
     def update_course_run(
-        self, course_id: str, coure_run_data: Dict[str, Any]
+        self, course_id: str, course_run_data: Dict[str, Any]
     ) -> Response:
         """Update course run details"""
 
         response = self.client.patch(
-            STUDIO_COURSE_RUNS_ENDPOINT + course_id + "/", json=coure_run_data
+            STUDIO_COURSE_RUNS_ENDPOINT + course_id + "/", json=course_run_data
         )
 
         response.raise_for_status()

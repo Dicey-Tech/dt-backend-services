@@ -46,4 +46,4 @@ def _publish_course_run_dates(course_run_data: Dict[str, Any]) -> None:
         }
     }
 
-    client.update_course_run(course_run_data["key"], schedule)
+    client.update_course_run(course_id=course_run_data["key"], course_run_data=schedule)
