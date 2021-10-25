@@ -39,9 +39,9 @@ def enroll_staff(course_ids: List[str], identifiers: List[str]) -> None:
 
             usernames = lms_client.get_usernames(identifiers)
 
-            course_data["team"].append(
+            course_data["team"] = [
                 {"user": instructor, "role": "instructor"} for instructor in usernames
-            )
+            ]
 
             studio_client.update_course_run(
                 course_id=course, course_run_data=course_data
