@@ -92,7 +92,9 @@ class DiscoveryApiClient(BaseOAuthClient):
                 ).json()
 
                 for course in response.get("results"):
-                    course_list.append(course["course_runs"][0])
+                    for course_run in course["course_runs"]:
+                        if "TEMPLATE" in course_run["key"]:
+                            course_list.append(course_run)
 
             logger.debug(f"Found {len(course_list)} courses.")
 
