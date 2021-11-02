@@ -1,18 +1,48 @@
 """ Abstraction layer to handle the implementation details for course runs """
-# from datetime import datetime, timedelta
-from typing import Dict, Any
 import logging
+from typing import Dict, Any
+from datetime import datetime, timedelta
 
+from opaque_keys.edx.keys import CourseKey
+from opaque_keys import InvalidKeyError
+
+from classrooms.apps.classrooms.constants import COURSE_RUN_FORMAT, DATETIME_FORMAT
 from classrooms.apps.api_client.discovery import DiscoveryApiClient
 from classrooms.apps.api_client.studio import StudioApiClient
 
 logger = logging.getLogger(__name__)
 
+
+def _calculate_course_run_key_run_value(create_at: datetime) -> str:
+    """Generate a Course Run Key"""
+    # Simple implementation for now
+    return create_at.strftime(COURSE_RUN_FORMAT)
+
+
 # TODO Add tests
-def create_course_run(
-    template_course_id: str, course_data: Dict[str, str]
-) -> Dict[str, Any]:
+def create_course_run(template_course_id: str) -> str:
     """Create a course run"""
+
+    start = datetime.today()
+    end = start + timedelta(days=90)
+
+    run = _calculate_course_run_key_run_value(start)
+
+    try:
+        course = CourseKey.from_string(template_course_id)
+    except InvalidKeyError:
+        logger.exception(f"Course key {template_course_id} is not recognised.")
+
+    course_data = {
+        "start": start.strftime(DATETIME_FORMAT),
+        "end": end.strftime(DATETIME_FORMAT),
+        "pacing_type": "self_paced",
+        "run_type": "",
+        "status": "published",
+        "course": f"{course.org}+{course.course}",
+        "term": run,
+    }
+
     client = DiscoveryApiClient()
 
     # First we need to get the UUID of the run type

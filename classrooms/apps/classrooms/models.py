@@ -3,20 +3,14 @@ Database models for classroom.
 """
 from uuid import uuid4
 import logging
-from datetime import date, datetime, timedelta
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from model_utils.models import TimeStampedModel
 
 from edx_rbac.models import UserRole, UserRoleAssignment
 from edx_rbac.utils import ALL_ACCESS_CONTEXT
-from opaque_keys.edx.keys import CourseKey
-from opaque_keys import InvalidKeyError
 
-from model_utils.models import TimeStampedModel
-
-from classrooms.apps.api_client.discovery import DiscoveryApiClient
-from classrooms.apps.classrooms.constants import DATE_FORMAT, DATETIME_FORMAT
 from classrooms.apps.classrooms.course_runs import create_course_run
 
 logger = logging.getLogger(__name__)
@@ -48,6 +42,7 @@ class Classroom(TimeStampedModel):
         default="Your Classroom Name",
         help_text=_("Specifies the displayed name of the classroom"),
     )
+    # TODO Is it worth using StatusModel for auditing?
     active = models.BooleanField(default=True)
 
     def __str__(self) -> str:
@@ -116,7 +111,7 @@ class CourseAssignment(TimeStampedModel):
     Fields:
         course_id (CharField):
         classroom_instance (ForeignKey):
-
+    # TODO Add TimeFramedModel to allow editing of start and end dates for assignments
     """
 
     class Meta:
@@ -162,33 +157,7 @@ class CourseAssignment(TimeStampedModel):
             super().save(*args, **kwargs)
             return
 
-        run = (
-            self.classroom_instance.name.replace(" ", "")
-            + "_"
-            + date.today().strftime(DATE_FORMAT)
-        )
-        template_course_key = self.course_id
-        course_key = self.course_id.replace("TEMPLATE", run)
-
-        try:
-            course = CourseKey.from_string(course_key)
-        except InvalidKeyError:
-            logger.exception(f"Course key {course_key} is not recognised.")
-
-        start = datetime.today()
-        end = start + timedelta(days=90)
-
-        course_data = {
-            "start": start.strftime(DATETIME_FORMAT),
-            "end": end.strftime(DATETIME_FORMAT),
-            "pacing_type": "self_paced",
-            "run_type": "",
-            "status": "published",
-            "course": f"{course.org}+{course.course}",
-            "term": course.run,
-        }
-
-        self.course_id = create_course_run(template_course_key, course_data)
+        self.course_id = create_course_run(self.course_id)
 
         super().save(*args, **kwargs)
 

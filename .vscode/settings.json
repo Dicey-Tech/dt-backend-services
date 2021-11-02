@@ -5,5 +5,6 @@
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.formatting.provider": "black",
-    "python.formatting.blackPath": "black"
+    "python.formatting.blackPath": "black",
+    "python.linting.enabled": true
 }
