@@ -9,6 +9,7 @@ from opaque_keys import InvalidKeyError
 from classrooms.apps.classrooms.constants import COURSE_RUN_FORMAT, DATETIME_FORMAT
 from classrooms.apps.api_client.discovery import DiscoveryApiClient
 from classrooms.apps.api_client.studio import StudioApiClient
+from classrooms.apps.api_client.lms import LMSApiClient
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,10 @@ def create_course_run(template_course_id: str) -> str:
     # This is a workaround to force publish the dates by updating the
     # schedule using the studio API.
     _publish_course_run_dates(response)
+
+    # Remove discovery learner
+    lms_client = LMSApiClient()
+    lms_client.remove_discovery_user(response.get("key"))
 
     return response.get("key")
 

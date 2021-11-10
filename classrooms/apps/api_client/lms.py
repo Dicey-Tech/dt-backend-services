@@ -77,3 +77,25 @@ class LMSApiClient(BaseOAuthClient):
             logger.exception(f"Something went wrong {exc}")  # TODO Better message
 
             raise exc
+
+    def remove_discovery_user(self, course):
+        """Remove discovery user from learner list in course"""
+
+        data = {
+            "auto_enroll": True,
+            "email_students": "no",
+            "action": "unenroll",
+            "courses": course,
+            "identifiers": "discovery",
+        }
+
+        try:
+            response = self.client.post(LMS_BULK_ENROLLMENT_ENDPOINT, json=data)
+
+            response.raise_for_status()
+
+            return response
+        except Exception as exc:
+            logger.exception(f"Something went wrong {exc}")  # TODO Better message
+
+            raise exc
