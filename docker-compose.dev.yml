@@ -15,7 +15,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8180
     container_name: classroom.app
     environment:
-      DJANGO_SETTINGS_MODULE: classroom.settings.local
+      DJANGO_SETTINGS_MODULE: classrooms.settings.local
     volumes:
       - .:/app
     ports:

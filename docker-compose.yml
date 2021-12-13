@@ -25,7 +25,7 @@ services:
       - .:/edx/app/classroom/
     command: bash -c 'while true; do python /edx/app/classroom/manage.py runserver 0.0.0.0:8180; sleep 2; done'
     environment:
-      DJANGO_SETTINGS_MODULE: classroom.settings.devstack
+      DJANGO_SETTINGS_MODULE: classrooms.settings.devstack
     ports:
       - "8180:8180"
     #    networks:
