@@ -75,13 +75,6 @@ JWT_AUTH.update(
 # )
 # END CELERY
 
-# CORS CONFIG
-CORS_ORIGIN_WHITELIST = [
-    "http://apps.local.overhang.io:8080",  # frontend-app-classroom
-    "http://classroom.local.overhang.io:8080",  # TODO remove frontend-app-classroom
-]
-# END CORS
-
 # Install django-extensions for improved dev experiences
 # https://github.com/django-extensions/django-extensions#using-it
 INSTALLED_APPS += ("django_extensions",)
