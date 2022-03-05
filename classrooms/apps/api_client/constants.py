@@ -7,7 +7,7 @@ from django.conf import settings
 
 # LMS API Client Constants
 LMS_BULK_ENROLLMENT_ENDPOINT = urljoin(
-    settings.LMS_BASE_URL, "/api/bulk_enroll/v1/bulk_enroll/"
+    settings.LMS_BASE_URL, "/api/bulk_enroll/v1/bulk_enroll"
 )
 LMS_USER_ENDPOINT = urljoin(settings.LMS_BASE_URL, "/api/user/v1/accounts")
 
