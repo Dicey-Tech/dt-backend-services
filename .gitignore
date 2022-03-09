@@ -1,5 +1,3 @@
-.vscode
-
 *.py[cod]
 
 *.log
@@ -11,7 +9,6 @@
 *.egg
 *.egg-info
 dist
-build
 eggs
 parts
 bin
@@ -89,3 +86,11 @@ private.py
 *.trace
 
 docs/_build/
+
+# Pants workspace files
+/.pants.d/
+/dist/
+/.pids
+/.pants.workdir.file_lock*
+
+.python-version
