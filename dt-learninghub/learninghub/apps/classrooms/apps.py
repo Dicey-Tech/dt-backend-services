@@ -16,7 +16,7 @@ class ClassroomConfig(AppConfig):
     Configuration for the classroom Django application.
     """
 
-    name = "classrooms.apps.classrooms"
+    name = "learninghub.apps.classrooms"
 
     def ready(self):
         """

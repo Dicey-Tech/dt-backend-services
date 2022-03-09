@@ -18,19 +18,19 @@ from edx_api_doc_tools import (
     query_parameter,
 )
 
-from classrooms.apps.api.serializers import (
+from learninghub.apps.api.serializers import (
     ClassroomSerializer,
     ClassroomEnrollmentSerializer,
     CourseAssignmentSerializer,
 )
-from classrooms.apps.classrooms.models import (
+from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
     ClassroomRoleAssignment,
     CourseAssignment,
 )
-from classrooms.apps.classrooms import constants
-from classrooms.apps.classrooms.course_list import get_course_list
+from learninghub.apps.classrooms import constants
+from learninghub.apps.classrooms.course_list import get_course_list
 
 logger = logging.getLogger(__name__)
 

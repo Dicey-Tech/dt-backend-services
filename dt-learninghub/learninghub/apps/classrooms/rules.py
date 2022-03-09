@@ -11,8 +11,8 @@ from edx_rbac.utils import (
     user_has_access_via_database,
 )
 
-from classrooms.apps.classrooms import constants
-from classrooms.apps.classrooms.models import ClassroomRoleAssignment
+from learninghub.apps.classrooms import constants
+from learninghub.apps.classrooms.models import ClassroomRoleAssignment
 
 logger = logging.getLogger(__name__)
 

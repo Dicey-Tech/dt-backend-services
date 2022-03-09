@@ -4,8 +4,8 @@ import logging
 
 from opaque_keys.edx.keys import CourseKey
 
-from classrooms.apps.api_client.discovery import DiscoveryApiClient
-from classrooms.apps.classrooms.models import CourseAssignment
+from learninghub.apps.api_client.discovery import DiscoveryApiClient
+from learninghub.apps.classrooms.models import CourseAssignment
 
 logger = logging.getLogger(__name__)
 

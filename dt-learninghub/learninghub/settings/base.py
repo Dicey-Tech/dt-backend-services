@@ -3,8 +3,8 @@ from os.path import abspath, dirname, join
 
 from corsheaders.defaults import default_headers as corsheaders_default_headers
 
-from classrooms.settings.utils import get_logger_config
-from classrooms.apps.classrooms.constants import (
+from learninghub.settings.utils import get_logger_config
+from learninghub.apps.classrooms.constants import (
     SYSTEM_ENTERPRISE_ADMIN_ROLE,
     SYSTEM_ENTERPRISE_LEARNER_ROLE,
     SYSTEM_ENTERPRISE_OPERATOR_ROLE,
@@ -51,9 +51,9 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
-    "classrooms.apps.core",
-    "classrooms.apps.api",
-    "classrooms.apps.classrooms",
+    "learninghub.apps.core",
+    "learninghub.apps.api",
+    "learninghub.apps.classrooms",
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -88,10 +88,10 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = corsheaders_default_headers + ("use-jwt-cookie",)
 CORS_ORIGIN_WHITELIST = []
 
-ROOT_URLCONF = "classrooms.urls"
+ROOT_URLCONF = "learninghub.urls"
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = "classrooms.wsgi.application"
+WSGI_APPLICATION = "learninghub.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -175,7 +175,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "classrooms.apps.core.context_processors.core",
+                "learninghub.apps.core.context_processors.core",
             ),
             "debug": True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         },

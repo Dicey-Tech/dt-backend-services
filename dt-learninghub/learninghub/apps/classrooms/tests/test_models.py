@@ -12,7 +12,7 @@ from django.test import TestCase
 
 from rest_framework import status
 
-from classrooms.apps.classrooms.constants import DATE_FORMAT
+from learninghub.apps.classrooms.constants import DATE_FORMAT
 from test_utils.factories import (
     ClassroomEnrollmentFactory,
     ClassroomFactory,
@@ -90,7 +90,7 @@ class TestCourseAssignment(TestCase):
     Tests for the Course
     """
 
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     def setUp(self, mock_oauth_client) -> None:
 
         self.classroom_instance = ClassroomFactory.create()

@@ -4,7 +4,7 @@ import ddt
 
 from django.test import TestCase
 
-from classrooms.apps.api_client.discovery import DiscoveryApiClient
+from learninghub.apps.api_client.discovery import DiscoveryApiClient
 from test_utils.response import MockResponse
 
 
@@ -19,7 +19,7 @@ class TestDiscoveryApiClient(TestCase):
         ),
     )
     @ddt.unpack
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     def test_create_course_run(
         self, expected_status_code, expected_result, mock_oauth_client
     ):
@@ -68,7 +68,7 @@ class TestDiscoveryApiClient(TestCase):
         )
     )
     @ddt.unpack
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     def test_get_course_run_type(
         self, expected_status_code, course_key, expeced_result, mock_oauth_client
     ):

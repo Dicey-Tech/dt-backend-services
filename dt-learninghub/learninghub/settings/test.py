@@ -1,6 +1,6 @@
 import os
 
-from classrooms.settings.base import *
+from learninghub.settings.base import *
 
 # IN-MEMORY TEST DATABASE
 DATABASES = {

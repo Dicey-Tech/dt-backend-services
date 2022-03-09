@@ -6,10 +6,10 @@ from datetime import datetime, timedelta
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys import InvalidKeyError
 
-from classrooms.apps.classrooms.constants import COURSE_RUN_FORMAT, DATETIME_FORMAT
-from classrooms.apps.api_client.discovery import DiscoveryApiClient
-from classrooms.apps.api_client.studio import StudioApiClient
-from classrooms.apps.api_client.lms import LMSApiClient
+from learninghub.apps.classrooms.constants import COURSE_RUN_FORMAT, DATETIME_FORMAT
+from learninghub.apps.api_client.discovery import DiscoveryApiClient
+from learninghub.apps.api_client.studio import StudioApiClient
+from learninghub.apps.api_client.lms import LMSApiClient
 
 logger = logging.getLogger(__name__)
 

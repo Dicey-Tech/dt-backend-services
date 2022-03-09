@@ -20,7 +20,7 @@ from edx_rest_framework_extensions.auth.jwt.tests.utils import (
     generate_unversioned_payload,
 )
 
-from classrooms.apps.classrooms import constants
+from learninghub.apps.classrooms import constants
 from test_utils.factories import (
     CourseAssignmentFactory,
     UserFactory,
@@ -471,7 +471,7 @@ class CourseAssignmentViewsetTests(APITestCase):
     Tests for the CourseAssignmentViewset
     """
 
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     def setUp(self, mock_oauth_client) -> None:
 
         self.teacher_1 = UserFactory()

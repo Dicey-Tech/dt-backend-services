@@ -5,7 +5,7 @@ import ddt
 from django.test import TestCase
 from rest_framework import status
 
-from classrooms.apps.api_client.studio import StudioApiClient
+from learninghub.apps.api_client.studio import StudioApiClient
 from test_utils.response import MockResponse
 
 
@@ -34,7 +34,7 @@ class TestSutdioApiClient(TestCase):
         )
     )
     @ddt.unpack
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     def test_update_course_run(
         self, expected_status_code, expected_response_body, mock_oauth_client
     ):

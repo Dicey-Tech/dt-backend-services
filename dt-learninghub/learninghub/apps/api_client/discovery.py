@@ -5,8 +5,8 @@ import logging
 
 from opaque_keys.edx.keys import CourseKey
 
-from classrooms.apps.api_client.base_oauth import BaseOAuthClient
-from classrooms.apps.api_client.constants import (
+from learninghub.apps.api_client.base_oauth import BaseOAuthClient
+from learninghub.apps.api_client.constants import (
     DISCOVERY_COURSE_RUNS_ENDPOINT,
     DISCOVERY_CATALOGS_ENDPOINT,
 )

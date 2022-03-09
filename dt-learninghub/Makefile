@@ -82,7 +82,7 @@ lint: ## run Python code linting
 quality: style isort_check lint ## check code style and import sorting, then lint
 
 pii_check: ## check for PII annotations on all Django models
-	DJANGO_SETTINGS_MODULE=classrooms.settings.test \
+	DJANGO_SETTINGS_MODULE=learninghub.settings.test \
 	code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
 
 check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names

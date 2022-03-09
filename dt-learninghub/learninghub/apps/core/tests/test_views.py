@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from classrooms.apps.core.constants import Status
+from learninghub.apps.core.constants import Status
 
 
 User = get_user_model()

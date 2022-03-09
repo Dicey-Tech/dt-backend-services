@@ -21,15 +21,15 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from edx_api_doc_tools import make_api_info, make_docs_urls
 
-from classrooms.apps.api import urls as api_urls
-from classrooms.apps.core import views as core_views
+from learninghub.apps.api import urls as api_urls
+from learninghub.apps.core import views as core_views
 
 admin.autodiscover()
 
 api_info = make_api_info(
-    title="Classroom API",
+    title="Learninghub API",
     version="v1",
-    description="APIs for Dicey Tech Classroom",
+    description="APIs for Dicey Tech Learninghub",
     email="support@diceytech.co.uk",
 )
 

@@ -1,4 +1,4 @@
-from classrooms.settings.base import *
+from learninghub.settings.base import *
 
 DEBUG = True
 

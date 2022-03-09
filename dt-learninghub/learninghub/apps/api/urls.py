@@ -6,7 +6,7 @@ contain namespaces for the active versions of the API.
 """
 from django.conf.urls import include, url
 
-from classrooms.apps.api.v1 import urls as v1_urls
+from learninghub.apps.api.v1 import urls as v1_urls
 
 
 app_name = "api"

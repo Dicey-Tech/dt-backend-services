@@ -11,7 +11,7 @@ from model_utils.models import TimeStampedModel
 from edx_rbac.models import UserRole, UserRoleAssignment
 from edx_rbac.utils import ALL_ACCESS_CONTEXT
 
-from classrooms.apps.classrooms.course_runs import create_course_run
+from learninghub.apps.classrooms.course_runs import create_course_run
 
 logger = logging.getLogger(__name__)
 

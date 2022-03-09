@@ -3,8 +3,8 @@ import logging
 from urllib.parse import urljoin
 
 import requests
-from classrooms.apps.api_client.base_oauth import BaseOAuthClient
-from classrooms.apps.api_client.constants import (
+from learninghub.apps.api_client.base_oauth import BaseOAuthClient
+from learninghub.apps.api_client.constants import (
     ENTERPRISE_CUSTOMER_ENDPOINT,
     ENTERPRISE_LEARNER_ENDPOINT,
     ENTERPRISE_COURSE_ENROLLMENT,

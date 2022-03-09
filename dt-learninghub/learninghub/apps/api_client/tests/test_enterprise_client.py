@@ -7,8 +7,8 @@ from django.test import TestCase
 
 from rest_framework import status
 
-from classrooms.apps.api_client.enterprise import EnterpriseApiClient
-from classrooms.apps.api_client.constants import (
+from learninghub.apps.api_client.enterprise import EnterpriseApiClient
+from learninghub.apps.api_client.constants import (
     ENTERPRISE_CUSTOMER_ENDPOINT,
     ENTERPRISE_LEARNER_ENDPOINT,
 )
@@ -31,7 +31,7 @@ class TestEnterpriseApiClient(TestCase):
     Tests for the edx-enterprise API client.
     """
 
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     @ddt.data(
         [],
         [
@@ -66,7 +66,7 @@ class TestEnterpriseApiClient(TestCase):
         else:
             self.assertEqual(customer_data, {})
 
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     @ddt.data(
         [],
         [

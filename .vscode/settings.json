@@ -1,10 +1,12 @@
 {
-    "python.linting.pylintEnabled": true,
-    "python.pythonPath": "/usr/local/bin/python",
+    "python.linting.pylintEnabled": false,
     "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.formatting.provider": "black",
     "python.formatting.blackPath": "black",
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "conventionalCommits.scopes": [
+        "learn"
+    ]
 }

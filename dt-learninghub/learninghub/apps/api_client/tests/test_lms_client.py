@@ -4,7 +4,7 @@ import ddt
 
 from django.test import TestCase
 
-from classrooms.apps.api_client.lms import LMSApiClient
+from learninghub.apps.api_client.lms import LMSApiClient
 from test_utils.response import MockResponse
 
 
@@ -43,7 +43,7 @@ class TestLMSApiClient(TestCase):
         ),
     )
     @ddt.unpack
-    @mock.patch("classrooms.apps.api_client.base_oauth.OAuthAPIClient")
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
     def test_bulk_enroll(self, courses, students, mock_oauth_client):
         """Test bulk enroll endpoint
                 TODO Use realistic response result assert See the `instructor.views.api.students_update_enrollment`

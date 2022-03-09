@@ -7,8 +7,8 @@ from django.utils.translation import activate
 import factory
 from factory.django import DjangoModelFactory
 
-from classrooms.apps.core.models import User
-from classrooms.apps.classrooms.models import (
+from learninghub.apps.core.models import User
+from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
     CourseAssignment,

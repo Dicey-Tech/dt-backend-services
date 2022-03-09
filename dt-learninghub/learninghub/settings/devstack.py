@@ -1,4 +1,4 @@
-from classrooms.settings.local import *
+from learninghub.settings.local import *
 
 DATABASES = {
     "default": {

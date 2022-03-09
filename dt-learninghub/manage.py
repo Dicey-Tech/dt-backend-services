@@ -9,7 +9,7 @@ import sys
 PWD = os.path.abspath(os.path.dirname(__file__))
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "classrooms.settings.local")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "learninghub.settings.local")
     sys.path.append(PWD)
     try:
         from django.core.management import (

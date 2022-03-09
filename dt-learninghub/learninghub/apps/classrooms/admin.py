@@ -3,7 +3,7 @@ Admin configuration for classroom models.
 """
 from django.contrib import admin
 
-from classrooms.apps.classrooms.models import (
+from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
     CourseAssignment,

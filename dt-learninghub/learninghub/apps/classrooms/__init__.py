@@ -1,1 +1,1 @@
-default_app_config = "classrooms.apps.classrooms.apps.ClassroomConfig"
+default_app_config = "learninghub.apps.classrooms.apps.ClassroomConfig"

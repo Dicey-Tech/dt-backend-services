@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 from django.views.generic import View
 from edx_django_utils.monitoring import ignore_transaction
 
-from classrooms.apps.core.constants import Status
+from learninghub.apps.core.constants import Status
 
 
 logger = logging.getLogger(__name__)

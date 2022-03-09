@@ -5,8 +5,8 @@ LMS service api client code.
 import logging
 from typing import List
 
-from classrooms.apps.api_client.base_oauth import BaseOAuthClient
-from classrooms.apps.api_client.constants import (
+from learninghub.apps.api_client.base_oauth import BaseOAuthClient
+from learninghub.apps.api_client.constants import (
     LMS_BULK_ENROLLMENT_ENDPOINT,
     LMS_USER_ENDPOINT,
 )

@@ -9,7 +9,7 @@ nested routes backed by the `ClassroomsViewSet`.  That is:
 """
 from rest_framework_nested import routers
 
-from classrooms.apps.api.v1 import views
+from learninghub.apps.api.v1 import views
 
 
 app_name = "v1"

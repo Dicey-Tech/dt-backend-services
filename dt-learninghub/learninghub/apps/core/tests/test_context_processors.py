@@ -2,7 +2,7 @@
 
 from django.test import RequestFactory, TestCase, override_settings
 
-from classrooms.apps.core.context_processors import core
+from learninghub.apps.core.context_processors import core
 
 
 PLATFORM_NAME = "Test Platform"

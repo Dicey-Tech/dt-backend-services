@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 def get_env_setting(setting):
-    """ Get the environment setting or raise exception """
+    """Get the environment setting or raise exception"""
     try:
         return environ[setting]
     except KeyError:
@@ -14,7 +14,7 @@ def get_env_setting(setting):
         raise ImproperlyConfigured(error_msg)
 
 
-def get_logger_config(logging_env="no_env", debug=False, service_variant="classroom"):
+def get_logger_config(logging_env="no_env", debug=False, service_variant="learninghub"):
     """
     Return the appropriate logging config dictionary. You should assign the
     result of this to the LOGGING var in your settings.

@@ -1,8 +1,8 @@
 from os import environ
 import yaml
 
-from classrooms.settings.base import *
-from classrooms.settings.utils import get_env_setting
+from learninghub.settings.base import *
+from learninghub.settings.utils import get_env_setting
 
 
 DEBUG = False
