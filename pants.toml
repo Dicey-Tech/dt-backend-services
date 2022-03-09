@@ -20,8 +20,17 @@ search_path = ["<PYENV_LOCAL>"]
 [python-infer]
 string_imports = true
 
+[black]
+version = "black==21.12b0"
+lockfile = "lockfiles/black.txt"
+
+[flake8]
+version = "flake8==4.0.1"
+lockfile = "lockfiles/flake8.txt"
+
+
 [pytest]
-lockfile = "pytest_lockfile.txt"
+lockfile = "lockfiles/pytest.txt"
 version = "pytest==6.2.5"
 extra_requirements.add = [
   "pytest-cov==3.0.0"

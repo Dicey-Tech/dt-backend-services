@@ -20,7 +20,7 @@ DICT_UPDATE_KEYS = ("JWT_AUTH",)
 MEDIA_STORAGE_BACKEND = {}
 FILE_STORAGE_BACKEND = {}
 
-CONFIG_FILE = get_env_setting("CLASSROOM_CFG")
+CONFIG_FILE = get_env_setting("LEARNINGHUB_CFG")
 with open(CONFIG_FILE, encoding="utf-8") as f:
     config_from_yaml = yaml.safe_load(f)
 
