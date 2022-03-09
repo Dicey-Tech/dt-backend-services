@@ -1,9 +1,8 @@
 """ Tests for lms api client """
 from unittest import mock
+
 import ddt
-
 from django.test import TestCase
-
 from learninghub.apps.api_client.lms import LMSApiClient
 from test_utils.response import MockResponse
 

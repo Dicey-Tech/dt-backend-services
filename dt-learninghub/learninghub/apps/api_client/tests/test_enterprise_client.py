@@ -4,15 +4,12 @@ from uuid import uuid4
 
 import ddt
 from django.test import TestCase
-
-from rest_framework import status
-
-from learninghub.apps.api_client.enterprise import EnterpriseApiClient
 from learninghub.apps.api_client.constants import (
     ENTERPRISE_CUSTOMER_ENDPOINT,
     ENTERPRISE_LEARNER_ENDPOINT,
 )
-
+from learninghub.apps.api_client.enterprise import EnterpriseApiClient
+from rest_framework import status
 
 no_results = {
     "next": None,

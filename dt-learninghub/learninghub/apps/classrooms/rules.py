@@ -2,15 +2,14 @@
 Rules needed to restrict access to the classroom management service.
 """
 import logging
+
 import crum
 import rules
-
 from edx_rbac.utils import (
     get_decoded_jwt,
     request_user_has_implicit_access_via_jwt,
     user_has_access_via_database,
 )
-
 from learninghub.apps.classrooms import constants
 from learninghub.apps.classrooms.models import ClassroomRoleAssignment
 

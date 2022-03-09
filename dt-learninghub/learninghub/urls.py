@@ -20,7 +20,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from edx_api_doc_tools import make_api_info, make_docs_urls
-
 from learninghub.apps.api import urls as api_urls
 from learninghub.apps.core import views as core_views
 

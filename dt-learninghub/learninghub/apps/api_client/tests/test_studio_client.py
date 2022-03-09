@@ -1,11 +1,10 @@
 """ Tests for studio api client  """
 from unittest import mock
+
 import ddt
-
 from django.test import TestCase
-from rest_framework import status
-
 from learninghub.apps.api_client.studio import StudioApiClient
+from rest_framework import status
 from test_utils.response import MockResponse
 
 

@@ -1,9 +1,8 @@
 from os import environ
-import yaml
 
+import yaml
 from learninghub.settings.base import *
 from learninghub.settings.utils import get_env_setting
-
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG

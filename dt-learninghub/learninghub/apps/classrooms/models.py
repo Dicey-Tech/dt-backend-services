@@ -1,17 +1,15 @@
 """
 Database models for classroom.
 """
-from uuid import uuid4
 import logging
+from uuid import uuid4
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from model_utils.models import TimeStampedModel
-
 from edx_rbac.models import UserRole, UserRoleAssignment
 from edx_rbac.utils import ALL_ACCESS_CONTEXT
-
 from learninghub.apps.classrooms.course_runs import create_course_run
+from model_utils.models import TimeStampedModel
 
 logger = logging.getLogger(__name__)
 

@@ -2,17 +2,15 @@
 Tests for the `classroom` models module.
 """
 
-from uuid import uuid4
 from datetime import date
 from unittest import mock
+from uuid import uuid4
 
 import ddt
-from pytest import mark
 from django.test import TestCase
-
-from rest_framework import status
-
 from learninghub.apps.classrooms.constants import DATE_FORMAT
+from pytest import mark
+from rest_framework import status
 from test_utils.factories import (
     ClassroomEnrollmentFactory,
     ClassroomFactory,

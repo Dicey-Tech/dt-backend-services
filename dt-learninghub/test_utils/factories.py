@@ -2,17 +2,16 @@
 Provides factory for API Tests.
 """
 from uuid import uuid4
-from django.utils.translation import activate
 
 import factory
+from django.utils.translation import activate
 from factory.django import DjangoModelFactory
-
-from learninghub.apps.core.models import User
 from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
     CourseAssignment,
 )
+from learninghub.apps.core.models import User
 
 USER_PASSWORD = "password"
 

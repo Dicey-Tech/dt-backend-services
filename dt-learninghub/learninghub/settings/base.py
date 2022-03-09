@@ -2,15 +2,14 @@ import os
 from os.path import abspath, dirname, join
 
 from corsheaders.defaults import default_headers as corsheaders_default_headers
-
-from learninghub.settings.utils import get_logger_config
 from learninghub.apps.classrooms.constants import (
+    CLASSROOM_LEARNER_ROLE,
+    CLASSROOM_TEACHER_ROLE,
     SYSTEM_ENTERPRISE_ADMIN_ROLE,
     SYSTEM_ENTERPRISE_LEARNER_ROLE,
     SYSTEM_ENTERPRISE_OPERATOR_ROLE,
-    CLASSROOM_TEACHER_ROLE,
-    CLASSROOM_LEARNER_ROLE,
 )
+from learninghub.settings.utils import get_logger_config
 
 # PATH vars
 here = lambda *x: join(abspath(dirname(__file__)), *x)

@@ -5,4 +5,4 @@ pex_binary(
     entry_point="manage.py",
 )
 
-python_requirements()
+python_requirements(source="requirements/dev.txt")

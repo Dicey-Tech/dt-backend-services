@@ -6,10 +6,9 @@ from typing import List
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-from learninghub.apps.classrooms.models import CourseAssignment, ClassroomEnrollment
 from learninghub.apps.api_client.lms import LMSApiClient
 from learninghub.apps.api_client.studio import StudioApiClient
+from learninghub.apps.classrooms.models import ClassroomEnrollment, CourseAssignment
 
 logger = logging.getLogger(__name__)
 

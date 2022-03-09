@@ -7,10 +7,8 @@ nested routes backed by the `ClassroomsViewSet`.  That is:
 /api/v1/classrooms/{classrooms_uuid}/enrollments/
 /api/v1/classrooms/{classrooms_uuid}/enrollments/{enrollments_uuid}/
 """
-from rest_framework_nested import routers
-
 from learninghub.apps.api.v1 import views
-
+from rest_framework_nested import routers
 
 app_name = "v1"
 

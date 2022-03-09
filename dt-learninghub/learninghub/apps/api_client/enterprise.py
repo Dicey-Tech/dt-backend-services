@@ -5,9 +5,9 @@ from urllib.parse import urljoin
 import requests
 from learninghub.apps.api_client.base_oauth import BaseOAuthClient
 from learninghub.apps.api_client.constants import (
+    ENTERPRISE_COURSE_ENROLLMENT,
     ENTERPRISE_CUSTOMER_ENDPOINT,
     ENTERPRISE_LEARNER_ENDPOINT,
-    ENTERPRISE_COURSE_ENROLLMENT,
 )
 
 logger = logging.getLogger(__name__)

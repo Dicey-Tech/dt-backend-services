@@ -1,11 +1,10 @@
 """ Abstraction layer to handle the implementation details for listing available courses """
-from typing import List
 import logging
-
-from opaque_keys.edx.keys import CourseKey
+from typing import List
 
 from learninghub.apps.api_client.discovery import DiscoveryApiClient
 from learninghub.apps.classrooms.models import CourseAssignment
+from opaque_keys.edx.keys import CourseKey
 
 logger = logging.getLogger(__name__)
 

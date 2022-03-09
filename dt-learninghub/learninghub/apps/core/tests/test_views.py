@@ -7,9 +7,7 @@ from django.db import DatabaseError
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-
 from learninghub.apps.core.constants import Status
-
 
 User = get_user_model()
 

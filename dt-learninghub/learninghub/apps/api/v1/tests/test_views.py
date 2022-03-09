@@ -2,34 +2,30 @@
 Classroom API Test Cases
 """
 
-import logging
 import json
-from uuid import uuid4
+import logging
 from datetime import date
 from unittest import mock
+from uuid import uuid4
 
 import ddt
 from django.urls import reverse
-
-from rest_framework import status
-from rest_framework.test import APITestCase
-
 from edx_rest_framework_extensions.auth.jwt.cookies import jwt_cookie_name
 from edx_rest_framework_extensions.auth.jwt.tests.utils import (
     generate_jwt_token,
     generate_unversioned_payload,
 )
-
 from learninghub.apps.classrooms import constants
+from rest_framework import status
+from rest_framework.test import APITestCase
 from test_utils.factories import (
+    USER_PASSWORD,
+    ClassroomEnrollmentFactory,
+    ClassroomFactory,
     CourseAssignmentFactory,
     UserFactory,
-    ClassroomFactory,
-    ClassroomEnrollmentFactory,
-    USER_PASSWORD,
 )
 from test_utils.response import MockResponse
-
 
 logger = logging.getLogger(__name__)
 

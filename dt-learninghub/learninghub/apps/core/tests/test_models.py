@@ -2,9 +2,8 @@
 
 from django.test import TestCase
 from django_dynamic_fixture import G
-from social_django.models import UserSocialAuth
-
 from learninghub.apps.core.models import User
+from social_django.models import UserSocialAuth
 
 
 class UserTests(TestCase):

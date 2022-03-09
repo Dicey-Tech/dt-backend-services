@@ -3,11 +3,11 @@ Studio service API client
 """
 import logging
 from typing import Any, Dict
-from rest_framework.response import Response
-from rest_framework import status
 
 from learninghub.apps.api_client.base_oauth import BaseOAuthClient
 from learninghub.apps.api_client.constants import STUDIO_COURSE_RUNS_ENDPOINT
+from rest_framework import status
+from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
 

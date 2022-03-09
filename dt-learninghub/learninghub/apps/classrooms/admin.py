@@ -2,13 +2,12 @@
 Admin configuration for classroom models.
 """
 from django.contrib import admin
-
 from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
-    CourseAssignment,
-    ClassroomRoleAssignment,
     ClassroomFeatureRole,
+    ClassroomRoleAssignment,
+    CourseAssignment,
 )
 
 

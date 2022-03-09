@@ -14,7 +14,8 @@ class User(AbstractUser):
     .. pii_retirement: local_api
 
     """
-    full_name = models.CharField(_('Full Name'), max_length=255, blank=True, null=True)
+
+    full_name = models.CharField(_("Full Name"), max_length=255, blank=True, null=True)
 
     @property
     def access_token(self):
@@ -23,12 +24,14 @@ class User(AbstractUser):
         Assumes user has authenticated at least once with the OAuth2 provider (LMS).
         """
         try:
-            return self.social_auth.first().extra_data[u'access_token']  # pylint: disable=no-member
+            return self.social_auth.first().extra_data[
+                u"access_token"
+            ]  # pylint: disable=no-member
         except Exception:  # pylint: disable=broad-except
             return None
 
     class Meta:
-        get_latest_by = 'date_joined'
+        get_latest_by = "date_joined"
 
     def get_full_name(self):
         return self.full_name or super(User, self).get_full_name()

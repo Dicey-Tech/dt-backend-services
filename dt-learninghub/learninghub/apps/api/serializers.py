@@ -3,13 +3,13 @@ Serializers for REST API endpoints
 """
 
 from re import L
-from rest_framework import serializers
 
 from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
     CourseAssignment,
 )
+from rest_framework import serializers
 
 
 class ClassroomSerializer(serializers.ModelSerializer):

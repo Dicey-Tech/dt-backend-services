@@ -6,31 +6,26 @@ import logging
 import re
 from typing import List
 
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from rest_framework import status, viewsets, permissions
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-
+from edx_api_doc_tools import query_parameter, schema_for
 from edx_rbac.mixins import PermissionRequiredForListingMixin
-from edx_api_doc_tools import (
-    schema_for,
-    query_parameter,
-)
-
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from learninghub.apps.api.serializers import (
-    ClassroomSerializer,
     ClassroomEnrollmentSerializer,
+    ClassroomSerializer,
     CourseAssignmentSerializer,
 )
+from learninghub.apps.classrooms import constants
+from learninghub.apps.classrooms.course_list import get_course_list
 from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,
     ClassroomRoleAssignment,
     CourseAssignment,
 )
-from learninghub.apps.classrooms import constants
-from learninghub.apps.classrooms.course_list import get_course_list
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
 

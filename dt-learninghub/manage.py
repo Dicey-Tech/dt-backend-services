@@ -12,9 +12,9 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "learninghub.settings.local")
     sys.path.append(PWD)
     try:
-        from django.core.management import (
+        from django.core.management import (  # pylint: disable=wrong-import-position
             execute_from_command_line,
-        )  # pylint: disable=wrong-import-position
+        )
     except ImportError:
         # The above import may fail for some other reason. Ensure that the
         # issue is really that Django is missing to avoid masking other
