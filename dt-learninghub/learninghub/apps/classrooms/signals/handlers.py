@@ -6,6 +6,7 @@ from typing import List
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from learninghub.apps.api_client.enterprise import EnterpriseApiClient
 from learninghub.apps.api_client.lms import LMSApiClient
 from learninghub.apps.api_client.studio import StudioApiClient
 from learninghub.apps.classrooms.models import ClassroomEnrollment, CourseAssignment
@@ -61,7 +62,7 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
         return
 
     classroom_enrollments = ClassroomEnrollment.objects.filter(
-        classroom_instance=instance.classroom_instance
+        classroom_instance=instance.classroom_instance, staff=False
     )
 
     if not classroom_enrollments:
