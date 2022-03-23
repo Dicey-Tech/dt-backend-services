@@ -21,3 +21,5 @@ python_requirements(
         "edx-drf-extensions" : ["edx_rest_framework_extensions"]
     },
 )
+
+python_requirements()
