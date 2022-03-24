@@ -367,7 +367,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         """
 
-        course_list = get_course_list(classroom_uuid)
+        course_list = get_course_list(classroom_uuid, self.requested_school_uuid)
 
         return Response(status=status.HTTP_200_OK, data=course_list)
 

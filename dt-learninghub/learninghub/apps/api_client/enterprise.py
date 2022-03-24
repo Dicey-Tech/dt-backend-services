@@ -31,15 +31,21 @@ class EnterpriseApiClient(BaseOAuthClient):
                                  empty dictionary if no customer record found
         """
         query_params = {"uuid": customer_uuid}
+        try:
+            response = self.client.get(
+                ENTERPRISE_CUSTOMER_ENDPOINT, params=query_params
+            ).json()
 
-        response = self.client.get(
-            ENTERPRISE_CUSTOMER_ENDPOINT, params=query_params
-        ).json()
+            results = response.get("results", [])
+            enterprise_customer = results[0] if results else {}
 
-        results = response.get("results", [])
-        enterprise_customer = results[0] if results else {}
+            return enterprise_customer
+        except HTTPError as exc:
+            logger.error(
+                f"Could not retrieve details for Enterprise Customer <{customer_uuid}> because of{exc}"
+            )
 
-        return enterprise_customer
+            return {}
 
     def get_enterprise_learners(self, customer_uuid):
         """
@@ -124,17 +130,35 @@ class EnterpriseApiClient(BaseOAuthClient):
             course_list:
         """
         course_list = []
-        catalog_list = self.get_enterprise_customer(customer_uuid).get(
-            "enterprise_customer_catalogs", []
-        )
 
-        for catalog in catalog_list:
-            endpoint = urljoin(ENTERPRISE_CATALOG_ENDPOINT, f"{catalog}/")
-            response = self.client.get(endpoint).json()
-            courses = response.get("results", [])
+        try:
+            catalog_list = self.get_enterprise_customer(customer_uuid).get(
+                "enterprise_customer_catalogs", []
+            )
 
-            for course in courses:
-                if course.get("key"):
-                    course_list.append(course.get("key"))
+            for catalog in catalog_list:
+                endpoint = urljoin(ENTERPRISE_CATALOG_ENDPOINT, f"{catalog}/")
+                response = self.client.get(endpoint).json()
+                courses = response.get("results", [])
 
-        return course_list
+                for course in courses:
+                    if course.get("key"):
+                        # This is to maintain the compatibilty with the way the discovery
+                        # API client would return a list of courses
+                        course_list.append(
+                            {
+                                "key": course.get("key"),
+                                "uuid": None,  # Not used in frontend
+                                "title": course.get("title"),
+                                "image": {
+                                    "src": course.get("card_image_url"),
+                                },
+                                "short_description": course.get("short_description"),
+                            }
+                        )
+
+            return course_list
+        except HTTPError as exc:
+            logger.error(f"Could not retrieve course list because of{exc}")
+
+            return []

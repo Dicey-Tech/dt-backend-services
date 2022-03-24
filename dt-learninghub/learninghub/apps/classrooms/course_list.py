@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 # TODO Add tests
-def get_course_list(classroom_uuid: str) -> List:
+def get_course_list(classroom_uuid: str, enterprise_uuid: str) -> List:
     """Return a list of template courses"""
     client = EnterpriseApiClient()
 
-    return _filter_course_list(classroom_uuid, client.get_course_list())
+    return _filter_course_list(classroom_uuid, client.get_course_list(enterprise_uuid))
 
 
 def _filter_course_list(classroom_uuid: str, course_list: List) -> List:
@@ -31,7 +31,7 @@ def _filter_course_list(classroom_uuid: str, course_list: List) -> List:
         existing_assignment_key = CourseKey.from_string(assignment.course_id)
 
         for listed_course in course_list:
-            key = CourseKey.from_string(listed_course["key"])
+            key = CourseKey.from_string(listed_course)
 
             if key.course == existing_assignment_key.course:
                 course_list.remove(listed_course)
