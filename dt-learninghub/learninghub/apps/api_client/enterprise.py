@@ -92,32 +92,35 @@ class EnterpriseApiClient(BaseOAuthClient):
         enrollment_data = []
         for course_id in courses:
             for user_id in identifiers:
-                enrollment_data = {
-                    "course_mode": "honor",
-                    "course_run_id": course_id,
-                    "lms_user_id": user_id,
-                    "email_students": False,
-                }
-
-                logger.debug(f"{enrollment_data}")
-                response = self.client.post(
-                    f"{ENTERPRISE_CUSTOMER_ENDPOINT}{school_uuid}/course_enrollments/",
-                    json=enrollment_data,
+                enrollment_data.append(
+                    {
+                        "course_mode": "honor",
+                        "course_run_id": course_id,
+                        "lms_user_id": user_id,
+                        "email_students": True,
+                        "is_active": True,
+                    }
                 )
 
-                try:
-                    response.raise_for_status()
+        logger.debug(f"{enrollment_data}")
+        response = self.client.post(
+            f"{ENTERPRISE_CUSTOMER_ENDPOINT}{school_uuid}/course_enrollments/",
+            json=enrollment_data,
+        )
 
-                    logger.info(
-                        f"Successfully created EnterpriseCourseEnrollment record for school {school_uuid}."
-                    )
+        try:
+            response.raise_for_status()
 
-                    return response
-                except HTTPError as exc:
-                    logger.error(
-                        f"Failed to create EnterpriseCourseEnrollment record for school {school_uuid} because {response.text}"
-                    )
-                    raise exc
+            logger.info(
+                f"Successfully created EnterpriseCourseEnrollment record for school {school_uuid}."
+            )
+
+            return response
+        except HTTPError as exc:
+            logger.error(
+                f"Failed to create EnterpriseCourseEnrollment record for school {school_uuid} because {response.text}"
+            )
+            raise exc
 
     def get_course_list(self, customer_uuid):
         """
