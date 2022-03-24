@@ -9,6 +9,7 @@ from learninghub.apps.api_client.constants import (
     DISCOVERY_COURSE_RUNS_ENDPOINT,
 )
 from opaque_keys.edx.keys import CourseKey
+from requests.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class DiscoveryApiClient(BaseOAuthClient):
 
             logger.info(f"Created course run {response.json().get('key')}")
             return response.json()
-        except Exception as exc:
+        except HTTPError as exc:
             logger.exception(
                 f"Could not create course run from course with data {course_data}"
             )
@@ -56,11 +57,11 @@ class DiscoveryApiClient(BaseOAuthClient):
             run_type = response.json().get("results")[0].get("run_type")
 
             return run_type
-        except IndexError as exc:
+        except IndexError as exc:  # noqa F841
             logger.exception(f"No run type was found for {course_key}")
 
             return None
-        except Exception as exc:
+        except HTTPError as exc:
             logger.exception(
                 f"Could not get course details for course run with key {course_key}"
             )
@@ -98,7 +99,7 @@ class DiscoveryApiClient(BaseOAuthClient):
 
             return course_list
 
-        except Exception as exc:
+        except HTTPError as exc:
             logger.exception(f"Something went wrong...{exc}")
 
             return []

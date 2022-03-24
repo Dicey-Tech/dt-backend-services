@@ -1,4 +1,4 @@
-Learning Hub |codecov-badge| |pre-commit| 
+Learning Hub |codecov-badge| |pre-commit|
 =========================================
 
 Django backend for learning related features.

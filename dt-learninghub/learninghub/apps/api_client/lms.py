@@ -10,6 +10,7 @@ from learninghub.apps.api_client.constants import (
     LMS_BULK_ENROLLMENT_ENDPOINT,
     LMS_USER_ENDPOINT,
 )
+from requests.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ class LMSApiClient(BaseOAuthClient):
             response.raise_for_status()
 
             return response
-        except Exception as exc:
+        except HTTPError as exc:
             logger.exception(f"Something went wrong {exc}")  # TODO Better message
 
             raise exc
@@ -73,7 +74,7 @@ class LMSApiClient(BaseOAuthClient):
             logger.debug(usernames)
 
             return usernames
-        except Exception as exc:
+        except HTTPError as exc:
             logger.exception(f"Something went wrong {exc}")  # TODO Better message
 
             raise exc
@@ -95,7 +96,7 @@ class LMSApiClient(BaseOAuthClient):
             response.raise_for_status()
 
             return response
-        except Exception as exc:
+        except HTTPError as exc:
             logger.exception(f"Something went wrong {exc}")  # TODO Better message
 
             raise exc

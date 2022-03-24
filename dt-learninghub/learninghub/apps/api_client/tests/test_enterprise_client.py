@@ -9,7 +9,6 @@ from learninghub.apps.api_client.constants import (
     ENTERPRISE_LEARNER_ENDPOINT,
 )
 from learninghub.apps.api_client.enterprise import EnterpriseApiClient
-from rest_framework import status
 
 no_results = {
     "next": None,
@@ -121,16 +120,37 @@ class TestEnterpriseApiClient(TestCase):
         else:
             self.assertEqual(learner_data, {})
 
-    def test_create_enterprise_enrollment(self):
-        """ "
-        Test create_enterprise_enrollment
+    @mock.patch("learninghub.apps.api_client.base_oauth.OAuthAPIClient")
+    def test_get_course_list_from_catalog(self, mock_api_client):
         """
-        enrollment_data = {
+        Test get_course_list
+        """
+        customer_uuid = uuid4()
+
+        enrollment_data = {  # noqa F841
             "username": "sofiane",
             "course_id": "course-v1:DiceyTech+DT002+3T2021a",
         }
 
-        client = EnterpriseApiClient()
-        response = client.create_enterprise_enrollment()
+        mock_api_client.return_value.get.return_value.json.return_value = {
+            "next": None,
+            "previous": None,
+            "count": 0,
+            "num_pages": 1,
+            "current_page": 1,
+            "start": 0,
+            "results": [
+                {
+                    "enterprise_customer_catalogs": [
+                        "9d2db69f-ea9a-49c0-8682-817ce4017a8b",
+                    ],
+                },
+                {"key": "DiceyTech+EXP001+TEMPLATE"},
+                {"key": "DiceyTech+EXP003+TEMPLATE"},
+            ],
+        }
 
-        self.assertEqual(status.HTTP_201_CREATED, response.status)
+        client = EnterpriseApiClient()
+        course_list = client.get_course_list(customer_uuid=customer_uuid)
+        print(course_list)
+        self.assertEquals(len(course_list), 2)

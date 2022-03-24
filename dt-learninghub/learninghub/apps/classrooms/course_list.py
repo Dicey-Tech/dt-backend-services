@@ -2,16 +2,17 @@
 import logging
 from typing import List
 
-from learninghub.apps.api_client.discovery import DiscoveryApiClient
+from learninghub.apps.api_client.enterprise import EnterpriseApiClient
 from learninghub.apps.classrooms.models import CourseAssignment
 from opaque_keys.edx.keys import CourseKey
 
 logger = logging.getLogger(__name__)
 
+
 # TODO Add tests
 def get_course_list(classroom_uuid: str) -> List:
     """Return a list of template courses"""
-    client = DiscoveryApiClient()
+    client = EnterpriseApiClient()
 
     return _filter_course_list(classroom_uuid, client.get_course_list())
 
