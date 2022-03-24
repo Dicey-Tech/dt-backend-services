@@ -290,7 +290,8 @@ class ClassroomsViewSetTests(APITestCase):
         # self.assertGreater(len(after), len(before))
         # self.assertIsNotNone(response.data.get("enrolled"))
 
-    def test_get_course_list(self):
+    @mock.patch("learninghub.apps.api_client.enterprise.EnterpriseApiClient")
+    def test_get_course_list(self, mock_api_client):
         """Test to get a list of courses"""
 
         # init a JWT cookie (so the user is authenticated) with admin role
@@ -299,6 +300,9 @@ class ClassroomsViewSetTests(APITestCase):
             self.teacher_1,
             [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
+
+        mock_api_client.return_value.get_enterprise_customer.return_value = {}
+        mock_api_client.return_value.get_course_list.return_value = []
 
         response = self.client.get(self.courses_list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

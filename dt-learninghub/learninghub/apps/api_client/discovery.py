@@ -58,11 +58,11 @@ class DiscoveryApiClient(BaseOAuthClient):
 
             return run_type
         except IndexError as exc:  # noqa F841
-            logger.exception(f"No run type was found for {course_key}")
+            logger.error(f"No run type was found for {course_key}")
 
             return None
         except HTTPError as exc:
-            logger.exception(
+            logger.error(
                 f"Could not get course details for course run with key {course_key}"
             )
             raise exc
@@ -100,6 +100,6 @@ class DiscoveryApiClient(BaseOAuthClient):
             return course_list
 
         except HTTPError as exc:
-            logger.exception(f"Something went wrong...{exc}")
+            logger.error(f"Could not retrieve course list because of{exc}")
 
             return []
