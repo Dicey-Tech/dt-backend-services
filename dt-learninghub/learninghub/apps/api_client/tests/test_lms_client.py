@@ -56,6 +56,8 @@ class TestLMSApiClient(TestCase):
 
         client = LMSApiClient()
 
-        response = client.bulk_enroll(courses=courses, identifiers=students)
+        response = client.bulk_enroll(  # noqa F841
+            courses=courses, identifiers=students
+        )
 
         mock_oauth_client.return_value.post.assert_called_once()

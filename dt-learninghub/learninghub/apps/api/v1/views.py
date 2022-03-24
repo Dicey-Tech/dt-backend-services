@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
     """
     Create a classroom.
 
-    Creating a classroom also triggers the creation of an enrollment for the as staff for 
+    Creating a classroom also triggers the creation of an enrollment for the as staff for
     the user initiating the call.
     """,
 )

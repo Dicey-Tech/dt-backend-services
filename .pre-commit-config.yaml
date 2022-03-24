@@ -1,21 +1,24 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: debug-statements
   - repo: local
     hooks:
       - id: pants-lint
         name: Pants lint
         always_run: false
         description: Runs linters and any formatters in check-only mode
-        entry: ./pants --no-dynamic-ui --owners-not-found-behavior=ignore lint
-        language: system
-        pass_filenames: true
-        types: [file, python]
-      - id: pants-fmt
-        name: Pants autoformat
-        always_run: false
-        description: Runs formatter on python files
-        entry: ./pants --no-dynamic-ui --owners-not-found-behavior=ignore fmt
+        entry: |
+          env PANTS_CONCURRENT=True ./pants --no-dynamic-ui --owners-not-found-behavior=ignore lint
         language: system
         pass_filenames: true
         types: [file, python]

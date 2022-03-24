@@ -1,4 +1,4 @@
-""" 
+"""
 Signal Handlers for users to be enrolled in courses.
 """
 import logging
@@ -16,10 +16,14 @@ logger = logging.getLogger(__name__)
 
 def enroll_learners(course_run_ids: List[str], identifiers: List[str]) -> None:
     """ """
-    client = LMSApiClient()
+    # client = LMSApiClient()
+    client = EnterpriseApiClient()
 
     try:
-        client.bulk_enroll(courses=course_run_ids, identifiers=identifiers)
+        client.create_enterprise_enrollment(
+            courses=course_run_ids, identifiers=identifiers
+        )
+        # client.bulk_enroll(courses=course_run_ids, identifiers=identifiers)
     except Exception as exc:
         logger.exception(f"Something went wrong... {exc}")
 

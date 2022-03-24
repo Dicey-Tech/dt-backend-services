@@ -2,8 +2,6 @@
 Serializers for REST API endpoints
 """
 
-from re import L
-
 from learninghub.apps.classrooms.models import (
     Classroom,
     ClassroomEnrollment,

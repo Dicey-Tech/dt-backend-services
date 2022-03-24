@@ -1,14 +1,15 @@
 """  """
 import logging
+from typing import List
 from urllib.parse import urljoin
 
-import requests
 from learninghub.apps.api_client.base_oauth import BaseOAuthClient
 from learninghub.apps.api_client.constants import (
-    ENTERPRISE_COURSE_ENROLLMENT,
+    ENTERPRISE_CATALOG_ENDPOINT,
     ENTERPRISE_CUSTOMER_ENDPOINT,
     ENTERPRISE_LEARNER_ENDPOINT,
 )
+from requests.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,9 @@ class EnterpriseApiClient(BaseOAuthClient):
 
         return learners_data
 
-    def create_enterprise_enrollment(self, school_uuid, user_id, course_id):
+    def create_enterprise_enrollment(
+        self, courses: List[str], identifiers: List[str], school_uuid: str
+    ):
         """
 
         Requires the enterprise-catalog service.
@@ -80,47 +83,58 @@ class EnterpriseApiClient(BaseOAuthClient):
             'lms_user_id': 10,
         }]
         """
+        enrollment_data = []
+        for course_id in courses:
+            for user_id in identifiers:
+                enrollment_data = {
+                    "course_mode": "honor",
+                    "course_run_id": course_id,
+                    "lms_user_id": user_id,
+                    "email_students": False,
+                }
 
-        enrollment_data = [
-            {
-                "course_mode": "honor",
-                "course_run_id": course_id,
-                "lms_user_id": user_id,
-                "email_students": False,
-            }
-        ]
+                logger.debug(f"{enrollment_data}")
+                response = self.client.post(
+                    f"{ENTERPRISE_CUSTOMER_ENDPOINT}{school_uuid}/course_enrollments/",
+                    json=enrollment_data,
+                )
 
-        response = self.client.post(
-            f"{ENTERPRISE_CUSTOMER_ENDPOINT}{school_uuid}/course_enrollments/",
-            json=enrollment_data,
+                try:
+                    response.raise_for_status()
+
+                    logger.info(
+                        f"Successfully created EnterpriseCourseEnrollment record for school {school_uuid}."
+                    )
+
+                    return response
+                except HTTPError as exc:
+                    logger.error(
+                        f"Failed to create EnterpriseCourseEnrollment record for school {school_uuid} because {response.text}"
+                    )
+                    raise exc
+
+    def get_course_list(self, customer_uuid):
+        """
+        Fetch the list of template courses accessible to the enterprise user
+
+        Arguments:
+            customer_uuid: string representation of the enterprise customer's uuid
+
+        Returns:
+            course_list:
+        """
+        course_list = []
+        catalog_list = self.get_enterprise_customer(customer_uuid).get(
+            "enterprise_customer_catalogs", []
         )
 
-        try:
-            response.raise_for_status()
+        for catalog in catalog_list:
+            endpoint = urljoin(ENTERPRISE_CATALOG_ENDPOINT, f"{catalog}/")
+            response = self.client.get(endpoint).json()
+            courses = response.get("results", [])
 
-            logger.info(
-                f"Successfully created EnterpriseCourseEnrollment record for school {school_uuid}."
-            )
+            for course in courses:
+                if course.get("key"):
+                    course_list.append(course.get("key"))
 
-            return response
-        except requests.exceptions.HTTPError as exc:
-            logger.error(
-                f"Failed to create EnterpriseCourseEnrollment record for school {school_uuid} because {response.text}"
-            )
-            raise exc
-
-    def create_enterprise_enrollment_record():
-        """
-        #TODO This is temporary. Because create_enterprise_enrollment requires the enterprise-catalog
-        service, we're using this call to create a record of an enterprise enrollment and a separate
-        LmsApiClient to actually enroll users.
-
-
-        /enterprise /api/v1/enterprise-course-enrollment/
-        {
-            "username": "sofiane",
-            "course_id": "course-v1:DiceyTech+DT002+3T2021b"
-        }
-        """
-
-        pass
+        return course_list

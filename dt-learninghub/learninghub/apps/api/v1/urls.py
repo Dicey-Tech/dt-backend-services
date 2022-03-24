@@ -1,5 +1,5 @@
-""" 
-API v1 URLs. 
+"""
+API v1 URLs.
 
 The use of `NestedSimpleRouter` below allows us to defined
 nested routes backed by the `ClassroomsViewSet`.  That is:

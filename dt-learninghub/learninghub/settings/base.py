@@ -12,9 +12,9 @@ from learninghub.apps.classrooms.constants import (
 from learninghub.settings.utils import get_logger_config
 
 # PATH vars
-here = lambda *x: join(abspath(dirname(__file__)), *x)
+here = lambda *x: join(abspath(dirname(__file__)), *x)  # noqa E731
 PROJECT_ROOT = here("..")
-root = lambda *x: join(abspath(PROJECT_ROOT), *x)
+root = lambda *x: join(abspath(PROJECT_ROOT), *x)  # noqa E731
 
 
 # SECURITY WARNING: keep the secret key used in production secret!

@@ -10,6 +10,7 @@ from django.apps import AppConfig
 #     PluginContexts,
 # )
 
+
 # TODO https://github.com/edx/edx-django-utils/blob/master/edx_django_utils/plugins/README.rst#id4
 class ClassroomConfig(AppConfig):
     """
@@ -24,4 +25,4 @@ class ClassroomConfig(AppConfig):
         """
         super().ready()
 
-        from .signals import handlers
+        from .signals import handlers  # noqa F401

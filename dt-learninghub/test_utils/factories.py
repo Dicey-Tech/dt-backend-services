@@ -4,7 +4,6 @@ Provides factory for API Tests.
 from uuid import uuid4
 
 import factory
-from django.utils.translation import activate
 from factory.django import DjangoModelFactory
 from learninghub.apps.classrooms.models import (
     Classroom,
