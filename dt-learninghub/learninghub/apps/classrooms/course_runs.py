@@ -30,8 +30,11 @@ def create_course_run(template_course_id: str) -> str:
 
     try:
         course = CourseKey.from_string(template_course_id)
+        # If the course is not a template then link it directly to the classroom
+        if course.run != "TEMPLATE":
+            return template_course_id
     except InvalidKeyError:
-        logger.exception(f"Course key {template_course_id} is not recognised.")
+        logger.error(f"Course key {template_course_id} is not recognised.")
 
     course_data = {
         "start": start.strftime(DATETIME_FORMAT),
