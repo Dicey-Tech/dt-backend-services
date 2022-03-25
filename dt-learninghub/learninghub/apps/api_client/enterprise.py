@@ -154,7 +154,7 @@ class EnterpriseApiClient(BaseOAuthClient):
                                 "uuid": None,  # Not used in frontend
                                 "title": course.get("title"),
                                 "image": {
-                                    "src": course.get("card_image_url"),
+                                    "src": course.get("image_url"),
                                 },
                                 "short_description": course.get("short_description"),
                             }

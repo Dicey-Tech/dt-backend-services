@@ -31,7 +31,7 @@ def _filter_course_list(classroom_uuid: str, course_list: List) -> List:
         existing_assignment_key = CourseKey.from_string(assignment.course_id)
 
         for listed_course in course_list:
-            key = CourseKey.from_string(listed_course)
+            key = CourseKey.from_string(listed_course.get("key"))
 
             if key.course == existing_assignment_key.course:
                 course_list.remove(listed_course)
