@@ -66,7 +66,7 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
         return
 
     classroom_enrollments = ClassroomEnrollment.objects.filter(
-        classroom_instance=instance.classroom_instance, staff=False
+        classroom_instance=instance.classroom_instance
     )
 
     if not classroom_enrollments:
@@ -76,14 +76,17 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
         f"Enroll {len(classroom_enrollments)} users in course with ID {instance.course_id}"
     )
 
-    identifiers_list = [enrollment.user_id for enrollment in classroom_enrollments]
+    identifiers_list = [
+        enrollment.user_id for enrollment in classroom_enrollments.filter(staff=False)
+    ]
 
     course_run_id = [instance.course_id]
 
     enroll_learners(course_run_ids=course_run_id, identifiers=identifiers_list)
 
-    staff_enrollments = classroom_enrollments.filter(staff=True)
-    staff_list = [enrollment.user_id for enrollment in staff_enrollments]
+    staff_list = [
+        enrollment.user_id for enrollment in classroom_enrollments.filter(staff=False)
+    ]
 
     enroll_staff(course_ids=course_run_id, identifiers=staff_list)
 
@@ -108,8 +111,6 @@ def enroll_from_classroom_enrollment(sender, instance, created, **kwargs):
 
     course_ids_list = [course.course_id for course in course_assignments]
 
-    enroll_learners(course_run_ids=course_ids_list, identifiers=[instance.user_id])
-
     is_staff = ClassroomEnrollment.objects.filter(
         classroom_instance=instance.classroom_instance,
         user_id=instance.user_id,
@@ -117,3 +118,5 @@ def enroll_from_classroom_enrollment(sender, instance, created, **kwargs):
 
     if is_staff:
         enroll_staff(course_ids=course_ids_list, identifiers=[instance.user_id])
+    else:
+        enroll_learners(course_run_ids=course_ids_list, identifiers=[instance.user_id])
