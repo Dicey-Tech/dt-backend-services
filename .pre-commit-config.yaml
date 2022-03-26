@@ -16,7 +16,7 @@ repos:
       - id: pants-lint
         name: Pants lint
         always_run: false
-        description: Runs linters and any formatters in check-only mode
+        description: Runs linters
         entry: |
           env PANTS_CONCURRENT=True ./pants --no-dynamic-ui --owners-not-found-behavior=ignore lint
         language: system

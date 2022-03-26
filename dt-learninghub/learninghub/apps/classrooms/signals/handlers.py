@@ -6,7 +6,6 @@ from typing import List
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from learninghub.apps.api_client.enterprise import EnterpriseApiClient
 from learninghub.apps.api_client.lms import LMSApiClient
 from learninghub.apps.api_client.studio import StudioApiClient
 from learninghub.apps.classrooms.models import ClassroomEnrollment, CourseAssignment
@@ -14,18 +13,17 @@ from learninghub.apps.classrooms.models import ClassroomEnrollment, CourseAssign
 logger = logging.getLogger(__name__)
 
 
+# TODO Add tests for signals
+# TODO Improve exception handling
 def enroll_learners(course_run_ids: List[str], identifiers: List[str]) -> None:
     """ """
-    # client = LMSApiClient()
-    client = EnterpriseApiClient()
+
+    client = LMSApiClient()
 
     try:
-        client.create_enterprise_enrollment(
-            courses=course_run_ids, identifiers=identifiers
-        )
-        # client.bulk_enroll(courses=course_run_ids, identifiers=identifiers)
+        client.bulk_enroll(courses=course_run_ids, identifiers=identifiers)
     except Exception as exc:
-        logger.exception(f"Something went wrong... {exc}")
+        logger.error(f"Learner enrollment failed: {exc}")
 
 
 def enroll_staff(course_ids: List[str], identifiers: List[str]) -> None:
@@ -51,7 +49,7 @@ def enroll_staff(course_ids: List[str], identifiers: List[str]) -> None:
                 course_id=course, course_run_data=course_data
             )
     except Exception as exc:
-        logger.exception(f"Something went wrong... {exc}")
+        logger.error(f"Staff enrollment failed: {exc}")
 
 
 @receiver(post_save, sender=CourseAssignment)
@@ -69,11 +67,8 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
         classroom_instance=instance.classroom_instance
     )
 
-    if not classroom_enrollments:
-        return
-
     logger.info(
-        f"Enroll {len(classroom_enrollments)} users in course with ID {instance.course_id}"
+        f"Enroll {len(classroom_enrollments)} user(s) in course with ID {instance.course_id}"
     )
 
     identifiers_list = [
@@ -82,10 +77,11 @@ def enroll_from_course_assignment(sender, instance, created, **kwargs):
 
     course_run_id = [instance.course_id]
 
-    enroll_learners(course_run_ids=course_run_id, identifiers=identifiers_list)
+    if identifiers_list:
+        enroll_learners(course_run_ids=course_run_id, identifiers=identifiers_list)
 
     staff_list = [
-        enrollment.user_id for enrollment in classroom_enrollments.filter(staff=False)
+        enrollment.user_id for enrollment in classroom_enrollments.filter(staff=True)
     ]
 
     enroll_staff(course_ids=course_run_id, identifiers=staff_list)
