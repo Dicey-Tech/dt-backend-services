@@ -220,7 +220,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         for enrollment in enrollments:
             classroom_ids.append(enrollment.classroom_instance.uuid)
 
-        return Classroom.objects.filter(uuid__in=classroom_ids)
+        return Classroom.objects.filter(uuid__in=classroom_ids).order_by("-created")
 
     @property
     def requested_school_uuid(self) -> str:
@@ -361,8 +361,15 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
         **Response Values**
 
             Reponse.data = [
-                "course-v1:DiceyTech+EXP001+TEMPLATE",
-                "course-v1:DiceyTech+EXP002+TEMPLATE"
+                {
+                    "key": "course-v1:DiceyTech+EXP001+TEMPLATE",
+                    "uuid": None,
+                    "title": "Course Title",
+                    "image": {
+                        "src": "http://...png",
+                    },
+                    "short_description": "Descriptions",
+                }
             ]
 
         """
