@@ -17,8 +17,8 @@ import os
 
 from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import include, path
 from edx_api_doc_tools import make_api_info, make_docs_urls
 from learninghub.apps.api import urls as api_urls
 from learninghub.apps.core import views as core_views
@@ -33,11 +33,11 @@ api_info = make_api_info(
 )
 
 urlpatterns = oauth2_urlpatterns + [
-    url(r"^admin/", admin.site.urls),
-    url(r"^api/", include(api_urls)),
-    url(r"^auto_auth/$", core_views.AutoAuth.as_view(), name="auto_auth"),
-    url(r"", include("csrf.urls")),  # Include csrf urls from edx-drf-extensions
-    url(r"^health/$", core_views.health, name="health"),
+    path("admin/", admin.site.urls),
+    path("api/", include(api_urls)),
+    path("auto_auth/", core_views.AutoAuth.as_view(), name="auto_auth"),
+    path("", include("csrf.urls")),  # Include csrf urls from edx-drf-extensions
+    path("health/", core_views.health, name="health"),
 ]
 
 urlpatterns += make_docs_urls(api_info)
@@ -49,4 +49,4 @@ if settings.DEBUG and os.environ.get(
     # for CI build
     import debug_toolbar  # pylint: disable=import-error
 
-    urlpatterns.append(url(r"^__debug__/", include(debug_toolbar.urls)))
+    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
