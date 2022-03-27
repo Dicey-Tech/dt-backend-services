@@ -1,5 +1,5 @@
-Learning Hub |codecov-badge| |pre-commit|
-=========================================
+Learning Hub |codecov-badge| |pre-commit| |code-style|
+======================================================
 
 Django backend for learning related features.
 
@@ -27,3 +27,6 @@ Please see `LICENSE.txt <LICENSE.txt>`_ for details.
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
+.. |code-style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: black
