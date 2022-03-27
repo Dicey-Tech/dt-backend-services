@@ -12,7 +12,7 @@
 #-c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
 
 # using LTS django version
-Django<2.3
+Django<3.3
 
 # Needed for black in dev.in
-tomli==1.2.1
+#tomli==1.2.1
