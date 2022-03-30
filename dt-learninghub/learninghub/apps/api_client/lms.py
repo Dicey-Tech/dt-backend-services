@@ -3,7 +3,7 @@ LMS service api client code.
 """
 
 import logging
-from typing import List
+from typing import Dict, List
 
 from learninghub.apps.api_client.base_oauth import BaseOAuthClient
 from learninghub.apps.api_client.constants import (
@@ -41,8 +41,6 @@ class LMSApiClient(BaseOAuthClient):
             "identifiers": identifiers,
         }
 
-        logger.debug(data)
-
         try:
             logger.info(
                 f"Enroll {len(identifiers.split(','))} learner(s) in {len(courses.split(','))} course(s)"
@@ -54,30 +52,50 @@ class LMSApiClient(BaseOAuthClient):
 
             return response
         except HTTPError as exc:
-            logger.exception(f"Something went wrong {exc}")  # TODO Better message
+            logger.error(f"Bulk enroll failed {exc}")
 
-            raise exc
+            return
 
     def get_usernames(self, emails_list: List[str]) -> List[str]:
         """Given a list of user emails, return a list of ursernames"""
         usernames = []
 
+        for email in emails_list:
+            response = self.get_user_details(email=email)
+            if not response:
+                return []
+
+            usernames.append(response.get("username"))
+
+        return usernames
+
+    def get_user_details(
+        self, email=None, user_id=None, username=None
+    ) -> Dict[str, str]:
+        """Get user details"""
+
+        if not any((email, user_id, username)):
+            return
+
+        query_params = ""
+
+        if email:
+            query_params = f"email={email}"
+        elif user_id:
+            query_params = f"lms_user_id={user_id}"
+        elif username:
+            query_params = f"username={username}"
+
         try:
-            for email in emails_list:
-                query_param = "email=" + email
-                response = self.client.get(LMS_USER_ENDPOINT, params=query_param)
+            response = self.client.get(LMS_USER_ENDPOINT, params=query_params)
 
-                response.raise_for_status()
+            response.raise_for_status()
 
-                usernames.append(response.json()[0]["username"])
-
-            logger.debug(usernames)
-
-            return usernames
+            return response.json()[0]
         except HTTPError as exc:
-            logger.exception(f"Something went wrong {exc}")  # TODO Better message
+            logger.error(f"Could not get user details {exc}")
 
-            raise exc
+            return {}
 
     def remove_discovery_user(self, course):
         """Remove discovery user from learner list in course"""
@@ -97,6 +115,6 @@ class LMSApiClient(BaseOAuthClient):
 
             return response
         except HTTPError as exc:
-            logger.exception(f"Something went wrong {exc}")  # TODO Better message
+            logger.error(f"Failed to remove discovery user {exc}")
 
-            raise exc
+            return

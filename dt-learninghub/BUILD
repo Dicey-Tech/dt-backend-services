@@ -2,7 +2,6 @@ python_sources(
     name="lib",
     dependencies=[
         "dt-learninghub/learninghub",
-        "//:pkg_resources",
     ],
 )
 
@@ -11,6 +10,7 @@ pex_binary(
     entry_point="manage.py",
     dependencies=[
         ":lib",
+        "//:edx-django-release-util",
+        "//:setuptools",
     ],
-    restartable=True,
 )

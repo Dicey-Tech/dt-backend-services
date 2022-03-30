@@ -82,13 +82,19 @@ class ClassroomsViewSetTests(APITestCase):
         self.classroom_4 = ClassroomFactory.create(school=FAKE_UUIDS[1])
 
         self.enrollment_1 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_1, user_id=self.teacher_1.email
+            classroom_instance=self.classroom_1,
+            user_email=self.teacher_1.email,
+            lms_user_id=self.teacher_1.id,
         )
         self.enrollment_2 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_2, user_id=self.teacher_1.email
+            classroom_instance=self.classroom_2,
+            user_email=self.teacher_1.email,
+            lms_user_id=self.teacher_1.id,
         )
         self.enrollment_3 = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_3, user_id=self.teacher_2.email
+            classroom_instance=self.classroom_3,
+            user_email=self.teacher_2.email,
+            lms_user_id=self.teacher_2.id,
         )
 
         self.client.login(username=self.teacher_1, password=USER_PASSWORD)
@@ -160,10 +166,14 @@ class ClassroomsViewSetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_create_classroom(self):
+    @mock.patch("learninghub.apps.classrooms.models.get_lms_user_id")
+    def test_create_classroom(self, mock_get_lms_user_id):
         """
         Test POST classroom creates a classroom with the user as a teacher.
         """
+
+        mock_get_lms_user_id.return_value = self.teacher_1.id
+
         # TODO Classroom should not require explicit school UUID
         # init a JWT cookie (so the user is authenticated) with admin role
         init_jwt_cookie(
@@ -264,7 +274,8 @@ class ClassroomsViewSetTests(APITestCase):
         response = self.client.patch(self.classroom_detail_url)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_enroll_users_in_classroom(self):
+    @mock.patch("learninghub.apps.classrooms.models.get_lms_user_id")
+    def test_enroll_users_in_classroom(self, mock_get_lms_user_id):
         """Test to enroll one or multiple users in a classroom"""
 
         # init a JWT cookie (so the user is authenticated) with admin role
@@ -274,14 +285,13 @@ class ClassroomsViewSetTests(APITestCase):
             [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
-        # before = self.client.get(self.classroom_enrollments_list_url).data
-
         student_1 = UserFactory()
         student_2 = UserFactory()
         identifiers = student_1.email + "\n" + student_2.email
 
         data = {"identifiers": identifiers}
 
+        mock_get_lms_user_id.side_effect = [student_1.id, student_2.id]
         response = self.client.post(self.classroom_enroll_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -290,8 +300,8 @@ class ClassroomsViewSetTests(APITestCase):
         # self.assertGreater(len(after), len(before))
         # self.assertIsNotNone(response.data.get("enrolled"))
 
-    @mock.patch("learninghub.apps.api_client.enterprise.EnterpriseApiClient")
-    def test_get_course_list(self, mock_api_client):
+    @mock.patch("learninghub.apps.api.v1.views.get_course_list")
+    def test_get_course_list(self, mock_get_course_list):
         """Test to get a list of courses"""
 
         # init a JWT cookie (so the user is authenticated) with admin role
@@ -301,8 +311,7 @@ class ClassroomsViewSetTests(APITestCase):
             [(constants.SYSTEM_ENTERPRISE_ADMIN_ROLE, str(self.classroom_1.school))],
         )
 
-        mock_api_client.return_value.get_enterprise_customer.return_value = {}
-        mock_api_client.return_value.get_course_list.return_value = []
+        mock_get_course_list.return_value = []
 
         response = self.client.get(self.courses_list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -327,19 +336,22 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
 
         self.enrollment_1 = ClassroomEnrollmentFactory.create(
             classroom_instance=self.classroom_1,
-            user_id=self.teacher_1.email,
+            user_email=self.teacher_1.email,
+            lms_user_id=self.teacher_1.id,
             staff=True,
         )
 
         self.enrollment_2 = ClassroomEnrollmentFactory.create(
             classroom_instance=self.classroom_1,
-            user_id=self.student_1.email,
+            user_email=self.student_1.email,
+            lms_user_id=self.student_1.id,
             staff=False,
         )
 
         self.enrollment_3 = ClassroomEnrollmentFactory.create(
             classroom_instance=self.classroom_2,
-            user_id=self.teacher_1.email,
+            user_email=self.teacher_1.email,
+            lms_user_id=self.teacher_1.id,
             staff=True,
         )
 
@@ -366,11 +378,14 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
         self.assertEqual(response.data.get("count"), 2)
 
     # TODO test with bad request_data
-    def test_create_single_enrollment(self):
+    @mock.patch("learninghub.apps.classrooms.models.get_lms_user_id")
+    def test_create_single_enrollment(self, mock_get_lms_user_id):
         """Test POST endpoints creates a classroom enrollment"""
         request_data = {
             "user_id": self.student_2.email,
         }
+
+        mock_get_lms_user_id.return_value = self.student_2.id
 
         response = self.client.post(
             self.enrollments_list_url,

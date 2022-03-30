@@ -53,7 +53,8 @@ class ClassroomEnrollmentFactory(DjangoModelFactory):
         model = ClassroomEnrollment
 
     classroom_instance = factory.SubFactory(ClassroomFactory)
-    user_id = 1
+    lms_user_id = 1
+    user_email = "test@test.com"
     staff = False
 
 

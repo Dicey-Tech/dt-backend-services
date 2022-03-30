@@ -24,8 +24,8 @@ class ClassroomEnrollmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassroomEnrollment
-        fields = ["pk", "classroom_instance", "user_id", "staff"]
-        lookup_field = "user_id"
+        fields = ["pk", "classroom_instance", "user_email", "staff"]
+        lookup_field = "user_email"
 
     def to_representation(self, instance):
         """
@@ -36,7 +36,7 @@ class ClassroomEnrollmentSerializer(serializers.ModelSerializer):
         ret = {
             "pk": instance.pk,
             "classroom_uuid": str(instance.classroom_instance.uuid),
-            "user_id": instance.user_id,
+            "user_id": instance.user_email,
         }
 
         return ret

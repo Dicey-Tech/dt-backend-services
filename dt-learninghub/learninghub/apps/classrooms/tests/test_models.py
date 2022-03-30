@@ -64,7 +64,7 @@ class TestClassroomEnrollment(TestCase):
             school=self.uuid,
         )
         self.classroom_enrollment = ClassroomEnrollmentFactory.create(
-            classroom_instance=self.classroom_instance, user_id=self.user.id
+            classroom_instance=self.classroom_instance, lms_user_id=self.user.id
         )
         return super().setUp()
 
@@ -77,8 +77,6 @@ class TestClassroomEnrollment(TestCase):
         expected_str = f"<ClassroomEnrollment for user {self.user.id} in classroom with ID {self.classroom_instance.uuid}>"
 
         self.assertEqual(expected_str, method(self.classroom_enrollment))
-
-    # TODO When classroom enrollment is created and course assignments exist, users should be enrolled
 
 
 @mark.django_db

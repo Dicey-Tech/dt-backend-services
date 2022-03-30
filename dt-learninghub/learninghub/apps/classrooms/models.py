@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from edx_rbac.models import UserRole, UserRoleAssignment
 from edx_rbac.utils import ALL_ACCESS_CONTEXT
 from learninghub.apps.classrooms.course_runs import create_course_run
+from learninghub.apps.classrooms.utils import get_lms_user_id
 from model_utils.models import TimeStampedModel
 
 logger = logging.getLogger(__name__)
@@ -67,7 +68,7 @@ class ClassroomEnrollment(TimeStampedModel):
     """
 
     class Meta:
-        unique_together = (("classroom_instance", "user_id"),)
+        unique_together = (("classroom_instance", "lms_user_id"),)
         app_label = "classrooms"
         ordering = ["created"]
 
@@ -79,13 +80,14 @@ class ClassroomEnrollment(TimeStampedModel):
         help_text=_("The classroom to which this enrollment is attached"),
     )
 
-    user_id = models.EmailField(
+    user_email = models.EmailField(
         blank=False,
         null=False,
         max_length=254,
-        db_index=True,
         help_text=_("User identifier"),
     )
+
+    lms_user_id = models.PositiveIntegerField(blank=False, null=True, db_index=True)
 
     staff = models.BooleanField(default=False)
 
@@ -93,13 +95,23 @@ class ClassroomEnrollment(TimeStampedModel):
         """
         Return a human-readable string representation.
         """
-        return f"<ClassroomEnrollment for user {self.user_id} in classroom with ID {self.classroom_instance.uuid}>"
+        return f"<ClassroomEnrollment for user {self.lms_user_id} in classroom with ID {self.classroom_instance.uuid}>"
 
     def __repr__(self):
         """
         Return string representation of the enrollment.
         """
         return self.__str__()
+
+    def save(self, *args, **kwargs):
+        """
+        Create a classroom enrollment.
+        Get LMS user ID from the email provided.
+        """
+        if not self.lms_user_id:
+            self.lms_user_id = get_lms_user_id(email=self.user_email)
+
+        super().save(*args, **kwargs)
 
 
 class CourseAssignment(TimeStampedModel):
