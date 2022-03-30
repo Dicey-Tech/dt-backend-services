@@ -1,6 +1,9 @@
 python_tests(
-    name="tests",
+    name="api-tests",
+    sources=["test_*.py"],
     dependencies=[
+        "dt-learninghub:learninghub",
+        "dt-learninghub/learninghub/settings/base.py",
         "dt-learninghub/learninghub/settings/test.py",
     ],
 )

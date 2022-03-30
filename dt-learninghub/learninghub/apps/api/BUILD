@@ -1,1 +1,5 @@
-python_sources()
+python_sources(
+    dependencies=[
+        "dt-learninghub/learninghub/apps/api/v1",
+    ]
+)
