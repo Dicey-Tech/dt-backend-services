@@ -13,6 +13,15 @@ repos:
       - id: debug-statements
   - repo: local
     hooks:
+      - id: pants-fmt
+        name: Pants fmt
+        always_run: false
+        description: Runs formatters
+        entry: |
+          env PANTS_CONCURRENT=True ./pants --no-dynamic-ui --owners-not-found-behavior=ignore fmt
+        language: system
+        pass_filenames: true
+        types: [file, python]
       - id: pants-lint
         name: Pants lint
         always_run: false

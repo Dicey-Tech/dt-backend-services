@@ -167,6 +167,7 @@ TEMPLATES = [
         "DIRS": (root("templates"),),
         "OPTIONS": {
             "context_processors": (
+                "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
@@ -275,3 +276,5 @@ SYSTEM_TO_FEATURE_ROLE_MAPPING = {
 
 # Default URLS for Discovery
 DISCOVERY_SERVICE_API_URL = os.environ.get("DISCOVERY_SERVICE_API_URL", "")
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
