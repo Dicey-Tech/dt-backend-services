@@ -29,12 +29,12 @@ class ClassroomEnrollmentAdmin(admin.ModelAdmin):
     """Admin configuration for the ClassroomEnrollment model."""
 
     list_display = [
-        "user_id",
+        "lms_user_id",
         "classroom_instance",
         "staff",
     ]
     list_filter = ["staff"]
-    search_fields = ["user_id"]
+    search_fields = ["lms_user_id"]
 
 
 @admin.register(CourseAssignment)

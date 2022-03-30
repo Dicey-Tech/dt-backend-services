@@ -213,14 +213,16 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
             kwargs.update({"uuid": self.requested_classroom_uuid})
 
         enrollments = ClassroomEnrollment.objects.filter(
-            user_id=self.request.user.email
+            user_email=self.request.user.email
         )
 
         classroom_ids = []
         for enrollment in enrollments:
             classroom_ids.append(enrollment.classroom_instance.uuid)
 
-        return Classroom.objects.filter(uuid__in=classroom_ids).order_by("-created")
+        return Classroom.objects.filter(uuid__in=classroom_ids, active=True).order_by(
+            "-created"
+        )
 
     @property
     def requested_school_uuid(self) -> str:
@@ -254,7 +256,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
 
         enrollment_data = {
             "classroom_instance": classroom_serializer.data["uuid"],
-            "user_id": request.user.email,
+            "user_email": request.user.email,
             "staff": True,
         }
 
@@ -336,7 +338,7 @@ class ClassroomsViewSet(PermissionRequiredForListingMixin, viewsets.ModelViewSet
             # TODO validate the users are part of the same enterprise
             enrollment_data = {
                 "classroom_instance": classroom_uuid,
-                "user_id": identifier,
+                "user_email": identifier,
             }
 
             enrollment_serializer = self.enrollment_serializer_class(
@@ -444,7 +446,7 @@ class ClassroomEnrollmentViewSet(viewsets.ModelViewSet):
         """Create a classroom enrollment"""
         enrollment_data = {
             "classroom_instance": self._get_classroom().uuid,
-            "user_id": self.request.data.get("user_id"),
+            "user_email": self.request.data.get("user_id"),
         }
 
         enrollment = self.serializer_class(data=enrollment_data)

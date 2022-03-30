@@ -8,5 +8,6 @@ python_requirements(
         "social-auth-app-django": ["social_django"],
         "setuptools": ["pkg_resources"],
         "edx-opaque-keys": ["opaque_keys"],
+        "edx-django-release-util": ["release_util"],
     },
 )
