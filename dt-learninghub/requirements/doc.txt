@@ -21,7 +21,7 @@ attrs==21.4.0
     #   pytest
 babel==2.9.1
     # via sphinx
-bleach==4.1.0
+bleach==5.0.0
     # via readme-renderer
 certifi==2021.10.8
     # via
@@ -35,7 +35,7 @@ charset-normalizer==2.0.12
     # via
     #   -r requirements/test.txt
     #   requests
-click==8.0.4
+click==8.1.2
     # via
     #   -r requirements/test.txt
     #   click-log
@@ -109,7 +109,7 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/test.txt
     #   edx-rbac
-django-waffle==2.3.0
+django-waffle==2.4.1
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -122,7 +122,7 @@ djangorestframework==3.13.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
-doc8==0.10.1
+doc8==0.11.1
     # via -r requirements/doc.in
 docutils==0.17.1
     # via
@@ -169,7 +169,7 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/doc.in
 factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==13.3.3
+faker==13.3.4
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -223,7 +223,7 @@ mock==4.0.3
     # via -r requirements/test.txt
 mysqlclient==2.1.0
     # via -r requirements/test.txt
-newrelic==7.6.0.173
+newrelic==7.10.0.175
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -235,7 +235,6 @@ oauthlib==3.2.0
 packaging==21.3
     # via
     #   -r requirements/test.txt
-    #   bleach
     #   drf-yasg
     #   pytest
     #   sphinx
@@ -284,7 +283,7 @@ pyjwt[crypto]==2.3.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.13.2
+pylint==2.13.5
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -466,7 +465,7 @@ wrapt==1.14.0
     # via
     #   -r requirements/test.txt
     #   astroid
-zipp==3.7.0
+zipp==3.8.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

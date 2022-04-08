@@ -56,7 +56,7 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/base.in
     #   edx-rbac
-django-waffle==2.3.0
+django-waffle==2.4.1
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -110,7 +110,7 @@ markupsafe==2.1.1
     # via jinja2
 mysqlclient==2.1.0
     # via -r requirements/base.in
-newrelic==7.6.0.173
+newrelic==7.10.0.175
     # via edx-django-utils
 oauthlib==3.2.0
     # via
