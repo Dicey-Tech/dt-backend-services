@@ -1,0 +1,14 @@
+[main]
+host = https://www.transifex.com
+
+[edx-platform.talenthub]
+file_filter = talenthub/conf/locale/<lang>/LC_MESSAGES/django.po
+source_file = talenthub/conf/locale/en/LC_MESSAGES/django.po
+source_lang = en
+type = PO
+
+[edx-platform.talenthub-js]
+file_filter = talenthub/conf/locale/<lang>/LC_MESSAGES/djangojs.po
+source_file = talenthub/conf/locale/en/LC_MESSAGES/djangojs.po
+source_lang = en
+type = PO

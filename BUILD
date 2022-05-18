@@ -1,5 +1,5 @@
 python_requirements(
-    source="dt-learninghub/requirements/dev.txt",
+    source="requirements/dev.txt",
     module_mapping={
         "edx-drf-extensions": ["edx_rest_framework_extensions"],
         "django-oauth-toolkit": ["oauth2_provider"],

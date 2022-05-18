@@ -1,0 +1,21 @@
+# Core requirements for using this application
+-c constraints.txt
+
+Django          # Web application framework
+django-cors-headers
+django-extensions
+django-model-utils       # Provides TimeStampedModel abstract base class
+django-rest-swagger
+django-waffle
+djangorestframework
+drf-nested-routers
+edx-api-doc-tools # TODO remove in favor of django-rest-swagger
+edx-auth-backends
+edx-django-utils
+edx-django-release-util
+edx-drf-extensions
+edx-rbac
+edx-rest-api-client
+mysqlclient
+pytz
+rules
