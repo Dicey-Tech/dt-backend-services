@@ -1,5 +1,5 @@
 """
-Views for classroom end points.
+Views for learninghub API.
 """
 
 import logging

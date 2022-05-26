@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Package metadata for dt-learninghub.
+Package metadata for talenthub.
 """
 import os
 import re
@@ -65,15 +65,15 @@ README = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 CHANGELOG = open(os.path.join(os.path.dirname(__file__), "CHANGELOG.rst")).read()
 
 setup(
-    name="dt-learninghub",
+    name="dt-talenthub",
     version=VERSION,
-    description="""Learninghub""",
+    description="""Talenthub""",
     long_description=README + "\n\n" + CHANGELOG,
     author="Dicey Tech",
-    author_email="support@support.co.uk",
+    author_email="support@diceytech.co.uk",
     url="https://github.com/Dicey-Tech/dt-backend-services",
     packages=[
-        "learninghub",
+        "talenthub",
     ],
     include_package_data=True,
     install_requires=load_requirements("../requirements/base.in"),

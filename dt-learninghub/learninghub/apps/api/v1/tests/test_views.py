@@ -1,5 +1,5 @@
 """
-Classroom API Test Cases
+Learninghub API Test Cases
 """
 
 import json

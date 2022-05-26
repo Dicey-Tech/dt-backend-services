@@ -94,3 +94,6 @@ docs/_build/
 /.pants.workdir.file_lock*
 
 .python-version
+
+# Jupyter Notebook
+.ipynb_checkpoints

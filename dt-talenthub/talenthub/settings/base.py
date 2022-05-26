@@ -44,6 +44,7 @@ THIRD_PARTY_APPS = (
 PROJECT_APPS = (
     "talenthub.apps.core",
     "talenthub.apps.api",
+    "talenthub.apps.demographics",
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -53,7 +54,7 @@ MIDDLEWARE = (
     # Resets RequestCache utility for added safety.
     "edx_django_utils.cache.middleware.RequestCacheMiddleware",
     # Enables monitoring utility for writing custom metrics.
-    "edx_django_utils.monitoring.middleware.MonitoringCustomMetricsMiddleware",
+    "edx_django_utils.monitoring.CachedCustomMonitoringMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -68,7 +69,7 @@ MIDDLEWARE = (
     # Enables force_django_cache_miss functionality for TieredCache.
     "edx_django_utils.cache.middleware.TieredCacheMiddleware",
     # Outputs monitoring metrics for a request.
-    "edx_rest_framework_extensions.middleware.RequestMetricsMiddleware",
+    "edx_rest_framework_extensions.middleware.RequestCustomAttributesMiddleware",
     # Ensures proper DRF permissions in support of JWTs
     "edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware",
 )
@@ -141,6 +142,7 @@ TEMPLATES = [
         "DIRS": (root("templates"),),
         "OPTIONS": {
             "context_processors": (
+                "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
@@ -222,3 +224,5 @@ PLATFORM_NAME = "Your Platform Name Here"
 
 # Set up logging for development use (logging to stdout)
 LOGGING = get_logger_config(debug=DEBUG)
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

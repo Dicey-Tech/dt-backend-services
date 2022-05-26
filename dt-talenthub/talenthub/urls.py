@@ -19,8 +19,9 @@ import os
 
 from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include
 from django.contrib import admin
+from django.urls import re_path
 from rest_framework_swagger.views import get_swagger_view
 from talenthub.apps.api import urls as api_urls
 from talenthub.apps.core import views as core_views
@@ -28,12 +29,12 @@ from talenthub.apps.core import views as core_views
 admin.autodiscover()
 
 urlpatterns = oauth2_urlpatterns + [
-    url(r"^admin/", admin.site.urls),
-    url(r"^api/", include(api_urls)),
-    url(r"^api-docs/", get_swagger_view(title="dt-talenthub API")),
-    url(r"^auto_auth/$", core_views.AutoAuth.as_view(), name="auto_auth"),
-    url(r"", include("csrf.urls")),  # Include csrf urls from edx-drf-extensions
-    url(r"^health/$", core_views.health, name="health"),
+    re_path(r"^admin/", admin.site.urls),
+    re_path(r"^api/", include(api_urls)),
+    re_path(r"^api-docs/", get_swagger_view(title="dt-talenthub API")),
+    re_path(r"^auto_auth/$", core_views.AutoAuth.as_view(), name="auto_auth"),
+    re_path(r"", include("csrf.urls")),  # Include csrf urls from edx-drf-extensions
+    re_path(r"^health/$", core_views.health, name="health"),
 ]
 
 if settings.DEBUG and os.environ.get(
@@ -43,4 +44,4 @@ if settings.DEBUG and os.environ.get(
     # for CI build
     import debug_toolbar  # pylint: disable=import-error
 
-    urlpatterns.append(url(r"^__debug__/", include(debug_toolbar.urls)))
+    urlpatterns.append(re_path(r"^__debug__/", include(debug_toolbar.urls)))

@@ -1,4 +1,14 @@
-# Serializers that can be shared across multiple versions of the API
-# should be created here. As the API evolves, serializers may become more
-# specific to a particular version of the API. In this case, the serializers
-# in question should be moved to versioned sub-package.
+"""
+Serializers for REST API endpoints
+"""
+from rest_framework import serializers
+from talenthub.apps.demographics.models import UserDemographics
+
+
+class DemographicsSerializer(serializers.ModelSerializer):
+    """Serializes the UserDemographics object."""
+
+    class Meta:
+        model = UserDemographics
+        fields = ["user", "gender", "user_ethnicity", "education_level"]
+        lookup_field = "user"
