@@ -11,3 +11,4 @@ django-debug-toolbar>=3.2.1      # For debugging Django
 #transifex-client         # For managing translations
 ddt
 pre-commit==2.17.0
+# ipdb TODO consider installing it by default

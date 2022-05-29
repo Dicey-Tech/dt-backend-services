@@ -1,7 +1,7 @@
 """
 Database models for demographics.
 """
-from gettext import gettext
+
 import logging
 
 from django.db import models

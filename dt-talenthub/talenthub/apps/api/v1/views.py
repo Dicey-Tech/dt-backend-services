@@ -8,6 +8,7 @@ from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from talenthub.apps.api.serializers import DemographicsSerializer
+from talenthub.apps.demographics.models import UserDemographics
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,10 @@ class DemographicsViewset(viewsets.ModelViewSet):
     Views for CRUD operations on Demographic
     """
 
+    lookup_field = "user"
+    lookup_url_kwarg = "user"
+
+    queryset = UserDemographics
     serializer_class = DemographicsSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
