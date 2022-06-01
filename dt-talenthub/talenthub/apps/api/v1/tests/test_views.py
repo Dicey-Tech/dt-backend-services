@@ -1,7 +1,8 @@
 """
 Talenthub API Test Cases
 
-TODO Update demographic profile (patch)
+TODO Delete endpoint is not supported
+TODO PUT endpoint is not supported
 TODO Add authorization layer
 """
 
@@ -90,11 +91,9 @@ class DemographicsViewSetTests(APITestCase):
     def test_get_user_demographic_profile(self, user_id) -> None:
         """Test GET demographics profile"""
 
-        self.demographics_detail_url = reverse(
-            "api:v1:demographics-detail", kwargs={"user": user_id}
-        )
+        url = reverse("api:v1:demographics-detail", kwargs={"user": user_id})
 
-        response = self.client.get(self.demographics_detail_url)
+        response = self.client.get(url)
 
         if user_id == self.user_1.id:
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -102,8 +101,25 @@ class DemographicsViewSetTests(APITestCase):
         else:
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    # TODO pytest talenthub/apps/api/v1/tests/test_views.py -k test_update_user_demographic_profile --no-cov
-    def test_update_user_demographic_profile(self) -> None:
+    @ddt.data(USER_ID)
+    def test_update_user_demographic_profile(self, user_id) -> None:
         """Test PATCH demographics profile"""
+        old_data = self.profile.gender
+
+        data = {
+            "gender": str(UserDemographics.GenderChoices.FEMALE),
+        }
+
+        url = reverse("api:v1:demographics-detail", kwargs={"user": user_id})
+
+        response = self.client.patch(url, data=data)
+        self.profile.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(str(self.profile.gender), str(old_data))
+
+    # TODO pytest talenthub/apps/api/v1/tests/test_views.py -k test_delete_user_demographic_profile
+    def test_delete_user_demographic_profile(self):
+        """Test DELETE endpoint returns 405 because we don't support it"""
 
         pass
