@@ -4,7 +4,7 @@ Views for talenthub API.
 
 import logging
 
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from talenthub.apps.api.serializers import DemographicsSerializer
@@ -18,11 +18,24 @@ class DemographicsViewset(viewsets.ModelViewSet):
     Views for CRUD operations on Demographic
     """
 
+    permission_classes = [permissions.IsAuthenticated]
+
     lookup_field = "user"
     lookup_url_kwarg = "user"
 
     queryset = UserDemographics.objects.all()
     serializer_class = DemographicsSerializer
+
+    def get_queryset(self):
+        """ """
+        user_id = (
+            self.kwargs.get("user") if self.kwargs.get("user") else self.request.user.id
+        )
+
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            return UserDemographics.objects.all()
+        else:
+            return UserDemographics.objects.filter(user=user_id)
 
     def create(self, request, *args, **kwargs) -> Response:
         """Create a demographic profile"""

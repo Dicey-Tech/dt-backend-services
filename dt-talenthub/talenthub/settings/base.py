@@ -98,6 +98,22 @@ DATABASES = {
     }
 }
 
+# Django Rest Framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "edx_rest_framework_extensions.auth.jwt.authentication.JwtAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAdminUser",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "PAGE_SIZE": 100,
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
@@ -208,6 +224,16 @@ JWT_AUTH = {
     "JWT_AUTH_COOKIE_HEADER_PAYLOAD": "edx-jwt-cookie-header-payload",
     "JWT_AUTH_COOKIE_SIGNATURE": "edx-jwt-cookie-signature",
     "JWT_AUTH_REFRESH_COOKIE": "edx-jwt-refresh-cookie",
+    # JWT_ISSUERS enables token decoding for multiple issuers (Note: This is not a native DRF-JWT field)
+    # We use it to allow different values for the 'ISSUER' field, but keep the same SECRET_KEY and
+    # AUDIENCE values across all issuers.
+    "JWT_ISSUERS": [
+        {
+            "AUDIENCE": "SET-ME-PLEASE",
+            "ISSUER": "http://localhost:18000/oauth2",
+            "SECRET_KEY": "SET-ME-PLEASE",
+        },
+    ],
 }
 
 # Request the user's permissions in the ID token
