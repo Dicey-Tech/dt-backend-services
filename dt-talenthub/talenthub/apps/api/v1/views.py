@@ -21,7 +21,7 @@ class DemographicsViewset(viewsets.ModelViewSet):
     lookup_field = "user"
     lookup_url_kwarg = "user"
 
-    queryset = UserDemographics
+    queryset = UserDemographics.objects.all()
     serializer_class = DemographicsSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
@@ -29,11 +29,11 @@ class DemographicsViewset(viewsets.ModelViewSet):
 
         demographics_data = {
             "user": request.data.get("user"),
-            "gender": request.data.get("demographics_gender"),
-            "user_ethnicity": request.data.get("demographics_user_ethnicity")[0]
-            if request.data.get("demographics_user_ethnicity")
+            "gender": request.data.get("gender"),
+            "user_ethnicity": request.data.get("user_ethnicity")
+            if request.data.get("user_ethnicity")
             else "",
-            "education_level": request.data.get("demographics_learner_education_level"),
+            "education_level": request.data.get("learner_education_level"),
         }
 
         try:
@@ -48,3 +48,12 @@ class DemographicsViewset(viewsets.ModelViewSet):
             error_message = str(exc.detail.get("user")[0])
 
             return Response(data=error_message, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs) -> Response:
+        """
+        ** Not allowed **
+
+        Disable DELETE for now.
+        """
+
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

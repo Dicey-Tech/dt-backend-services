@@ -1,8 +1,6 @@
 """
 Talenthub API Test Cases
 
-TODO Delete endpoint is not supported
-TODO PUT endpoint is not supported
 TODO Add authorization layer
 """
 
@@ -38,35 +36,38 @@ class DemographicsViewSetTests(APITestCase):
         )
 
         self.demographics_list_url = reverse("api:v1:demographics-list")
+        self.demographics_detail_url = reverse(
+            "api:v1:demographics-detail", kwargs={"user": self.user_1.id}
+        )
 
     @ddt.data(
         {
             "user": 7,
-            "demographics_gender": "",
-            "demographics_gender_description": "",
-            "demographics_income": "",
-            "demographics_learner_education_level": "",
-            "demographics_parent_education_level": "",
-            "demographics_military_history": "",
-            "demographics_work_status": "",
-            "demographics_work_status_description": "",
-            "demographics_current_work_sector": "",
-            "demographics_future_work_sector": "",
-            "demographics_user_ethnicity": [],
+            "gender": "m",
+            "gender_description": "",
+            "income": "",
+            "learner_education_level": "",
+            "parent_education_level": "",
+            "military_history": "",
+            "work_status": "",
+            "work_status_description": "",
+            "current_work_sector": "",
+            "future_work_sector": "",
+            "user_ethnicity": "",
         },
         {
             "user": "",
-            "demographics_gender": "",
-            "demographics_gender_description": "",
-            "demographics_income": "",
-            "demographics_learner_education_level": "",
-            "demographics_parent_education_level": "",
-            "demographics_military_history": "",
-            "demographics_work_status": "",
-            "demographics_work_status_description": "",
-            "demographics_current_work_sector": "",
-            "demographics_future_work_sector": "",
-            "demographics_user_ethnicity": [],
+            "gender": "",
+            "gender_description": "",
+            "income": "",
+            "learner_education_level": "",
+            "parent_education_level": "",
+            "military_history": "",
+            "work_status": "",
+            "work_status_description": "",
+            "current_work_sector": "",
+            "future_work_sector": "",
+            "user_ethnicity": "",
         },
     )
     def test_create_user_demographic_profile(self, user_data) -> None:
@@ -87,6 +88,14 @@ class DemographicsViewSetTests(APITestCase):
         else:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+            url = reverse(
+                "api:v1:demographics-detail", kwargs={"user": user_data["user"]}
+            )
+            profile = self.client.get(url)
+
+            self.assertEqual(profile.data["user"], user_data["user"])
+            self.assertEqual(profile.data["gender"], user_data["gender"])
+
     @ddt.data(USER_ID, 3)
     def test_get_user_demographic_profile(self, user_id) -> None:
         """Test GET demographics profile"""
@@ -102,9 +111,9 @@ class DemographicsViewSetTests(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     @ddt.data(USER_ID)
-    def test_update_user_demographic_profile(self, user_id) -> None:
+    def test_patch_demographic_profile(self, user_id) -> None:
         """Test PATCH demographics profile"""
-        old_data = self.profile.gender
+        old_data = str(self.profile.gender)
 
         data = {
             "gender": str(UserDemographics.GenderChoices.FEMALE),
@@ -116,10 +125,33 @@ class DemographicsViewSetTests(APITestCase):
         self.profile.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEqual(str(self.profile.gender), str(old_data))
+        self.assertNotEqual(response.data["gender"], old_data)
 
-    # TODO pytest talenthub/apps/api/v1/tests/test_views.py -k test_delete_user_demographic_profile
+    @ddt.data(USER_ID)
+    def test_update_demographic_profile(self, user_id):
+        """Test UPDATE demographics profile"""
+
+        old_data = str(self.profile.gender)
+
+        data = {
+            "user": user_id,
+            "gender": str(UserDemographics.GenderChoices.FEMALE),
+            "user_ethnicity": str(self.profile.user_ethnicity),
+            "education_level": str(self.profile.education_level)
+            if self.profile.education_level
+            else "",
+        }
+
+        url = reverse("api:v1:demographics-detail", kwargs={"user": user_id})
+
+        response = self.client.put(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data["gender"], old_data)
+
     def test_delete_user_demographic_profile(self):
         """Test DELETE endpoint returns 405 because we don't support it"""
 
-        pass
+        response = self.client.delete(self.demographics_detail_url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

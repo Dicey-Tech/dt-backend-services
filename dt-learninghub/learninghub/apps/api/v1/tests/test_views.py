@@ -401,7 +401,6 @@ class ClassroomEnrollmentViewSetTests(APITestCase):
     @ddt.data(1, 2)
     def test_get_single_enrollment(self, pk):
         """Test GET for a single enrollment"""
-        # TODO Yikes
 
         list_response = self.client.get(self.enrollments_list_url)
 
